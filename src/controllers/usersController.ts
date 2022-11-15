@@ -23,6 +23,13 @@ const createUser = asyncWrap (async (req: Request, res: Response) => {
 });
 
 
+const signInUser = asyncWrap (async (req: Request, res: Response) => {
+  const userData: UserDTO = req.body;
+
+  const result = await userService.signInUser(userData);
+  res.status(201).json({ message: "Login_Success", result });
+});
 
 
-export default { userAvailableCheck, createUser }
+
+export default { userAvailableCheck, createUser, signInUser }
