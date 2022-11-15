@@ -29,5 +29,15 @@ const createUser = async (userData: UserDTO): Promise<object> => {
 }
 
 
+const getUserByAccount = async (selectQuery: string): Promise<any> => {
+  return await myDataSource.query(`
+    SELECT 
+      id, password, nickname 
+    FROM users 
+    WHERE ${selectQuery}`)
+}
 
-export default { getUserExists, createUser }
+
+
+
+export default { getUserExists, createUser, getUserByAccount }
