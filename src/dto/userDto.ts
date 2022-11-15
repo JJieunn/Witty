@@ -1,6 +1,6 @@
-export interface UserDTO {
-  account: string;
-  password: string;
-  nickname: string;
-  email: string;
+export class UserDTO {
+  account!: string;
+  password!: string;
+  email!: string; 
+  nickname!: string;
 }
