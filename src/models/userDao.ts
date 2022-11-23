@@ -29,12 +29,14 @@ const createUser = async (userData: UserDTO): Promise<object> => {
 }
 
 
-const getUserByAccount = async (selectQuery: string): Promise<any> => {
+const getUserByAccount = async (userData: UserDTO): Promise<any> => {
+  const account = userData.account;
+
   return await myDataSource.query(`
     SELECT 
       id, password, nickname 
     FROM users 
-    WHERE ${selectQuery}`)
+    WHERE account = ?`, [account])
 }
 
 

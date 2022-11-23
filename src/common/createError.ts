@@ -1,4 +1,4 @@
-class  RegExpError extends Error {
+class RegExpError extends Error {
   private statusCode: number
 
   constructor(message: string) {
@@ -6,7 +6,17 @@ class  RegExpError extends Error {
     this.name = "Regular Expresstion Error"
     this.statusCode = 400
   }
+}
+
+class keyError extends Error {
+  private statusCode: number
+
+  constructor(message: string) {
+    super(message)
+    this.name = "Duplication Check Key Error"
+    this.statusCode = 400
   }
+}
 
 class NotFoundError extends Error {
   private statusCode: number
@@ -39,4 +49,4 @@ class PwMismatchError extends Error {
 }
 
 
-export { RegExpError, NotFoundError, DuplicateError, PwMismatchError }
+export { RegExpError, keyError, NotFoundError, DuplicateError, PwMismatchError }
