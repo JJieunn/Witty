@@ -2,18 +2,18 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import userDao from "../models/userDao"
 import { UserDTO } from "../dto/userDto"
-import { NotFoundError, PwMismatchError } from "../common/createError"
+import { keyError, PwMismatchError } from "../common/createError"
 import { SECRET_KEY } from "../configs/keyConfig"
 
 
 const userAvailableCheck = async (userData: object) => {
   const value = Object.values(userData)
-  let query = `account = "${value}"`
-  
-  if(!(Object.keys(userData).includes("eamil") && Object.keys(userData).includes("account")))
-  { throw new NotFoundError("Not_Found_Key"); }
+  const key = Object.keys(userData)
+  let query = `${key} = "${value}"`
 
-  if(Object.keys(userData).includes("email")) query = `email = "${value}"`
+  if(!Object.keys(userData).includes("account") && !Object.keys(userData).includes("email")) 
+  { throw new keyError("Key_Error"); }
+  
   await userDao.getUserExists(query);
 }
 
@@ -29,20 +29,17 @@ const createUser = async (userData: UserDTO) => {
 
 const signInUser = async (userData: UserDTO) => {
   let token = ""
-  const user = {
-    nickname: "",
-    token: ""
-  }
-  const query = `account = "${userData.account}"`
 
-  const userIdPw = await userDao.getUserByAccount(query);
+  const userIdPw = await userDao.getUserByAccount(userData);
   const isPasswordCorrected = bcrypt.compareSync(userData.password, userIdPw[0].password);
 
   if (!isPasswordCorrected) { throw new PwMismatchError("Password_Mismatch") }
   else if (isPasswordCorrected) { token = jwt.sign({ account: userIdPw[0].account }, SECRET_KEY, { expiresIn: '2h' }); }
   
-  user.nickname = userIdPw[0].nickname;
-  user.token = token;
+  const user = {
+    nickname: userIdPw[0].nickname,
+    token: token
+  }
 
   return user;
 }
