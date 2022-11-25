@@ -3,6 +3,7 @@ import { asyncWrap } from "../common/asyncWrap"
 import { keyError } from "../common/keyErrorCheck";
 import { UserDTO } from "../dto/userDto"
 import userService from "../services/userService"
+import { BadRequestExceptions } from "../common/createError"
 
 
 
@@ -31,5 +32,27 @@ const signInUser = asyncWrap (async (req: Request, res: Response) => {
 });
 
 
+const kakaoLogin = asyncWrap (async (req: Request, res: Response) => {
+  const authorizeCode = req.body;
 
-export default { userAvailableCheck, createUser, signInUser }
+  if(!authorizeCode) { throw new BadRequestExceptions("Require_Kakao_Login"); }
+
+  const userInfo = await userService.kakaoLogin(authorizeCode);
+  res.status(200).json(userInfo)
+});
+
+
+const kakaoLogout = asyncWrap (async (req: Request, res: Response) => {
+  const result = await userService.kakaoLogout();
+  if(result.status === 200) res.status(200).json({ message: "Logout_Success" })
+})
+
+
+
+export default { 
+  userAvailableCheck,
+  createUser,
+  signInUser,
+  kakaoLogin,
+  kakaoLogout
+}
