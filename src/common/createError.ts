@@ -1,3 +1,13 @@
+class BadRequestExceptions extends Error {
+  private statusCode: number
+
+  constructor(message: string) {
+    super(message)
+    this.name = "Bad Request"
+    this.statusCode = 400
+  }
+}
+
 class RegExpError extends Error {
   private statusCode: number
 
@@ -49,4 +59,11 @@ class PwMismatchError extends Error {
 }
 
 
-export { RegExpError, keyError, NotFoundError, DuplicateError, PwMismatchError }
+export { 
+  BadRequestExceptions,
+  RegExpError,
+  keyError,
+  NotFoundError,
+  DuplicateError,
+  PwMismatchError
+}

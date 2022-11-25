@@ -40,6 +40,36 @@ const getUserByAccount = async (userData: UserDTO): Promise<any> => {
 }
 
 
+const createSNSUser = async (account: string, email: string, nickname: string): Promise<object> => {
+  return await myDataSource
+  .createQueryBuilder()
+  .insert()
+  .into(Users)
+  .values({
+    account,
+    password: "",
+    nickname,
+    email
+  })
+  .execute()
+}
 
 
-export default { getUserExists, createUser, getUserByAccount }
+const getSNSUser = async (account: string, email: string) => {// 인자로 email 올 수 있는 거 맞아?
+  return await myDataSource.query(`
+  SELECT 
+    id, email, nickname 
+  FROM users 
+  WHERE email = ? AND account = ?`, [email, account]) // DB명 변경 주의
+}
+
+
+
+
+export default { 
+  getUserExists,
+  createUser,
+  getUserByAccount,
+  createSNSUser,
+  getSNSUser
+}
