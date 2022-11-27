@@ -10,7 +10,7 @@ export class Posts {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column("varchar", { nullable: true, length: 1000 })
+  @Column("varchar", { nullable: true, length: 140 })
   content!: string;
 
   @Column("int")
