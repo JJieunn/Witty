@@ -22,7 +22,7 @@ const createPost = async (userId: number, categoryId: number, postData: PostDTO)
 const getAllPosts = async (): Promise<object[]> => {
   return await myDataSource.query(`
     SELECT 
-      p.id, u.nickname, p.user_id, cate.name, p.category_id,
+      p.id, u.nickname, p.user_id, cate.name as category, p.category_id,
       p.content, p.created_at, c.count_comments, pl.count_likes
     FROM posts p
     JOIN users u ON p.user_id = u.id
@@ -36,7 +36,7 @@ const getAllPosts = async (): Promise<object[]> => {
 const getPostById = async (postId: number): Promise<object> => {
   return await myDataSource.query(`
     SELECT 
-      p.id, u.nickname, p.user_id, cate.name, p.category_id,
+      p.id, u.nickname, p.user_id, cate.name as category, p.category_id,
       p.content, p.created_at, c.count_comments, pl.count_likes
     FROM posts p
     JOIN users u ON p.user_id = u.id
