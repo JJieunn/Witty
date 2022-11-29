@@ -3,8 +3,8 @@ import postDao from "../models/postDao";
 
 
 
-const createPost = async (userId: number, categoryId: number, postData: PostDTO) => {
-  await postDao.createPost(userId, categoryId, postData);
+const createPost = async (categoryId: number, postData: PostDTO) => {
+  await postDao.createPost(categoryId, postData);
 }
 
 const getAllPosts = async () => {

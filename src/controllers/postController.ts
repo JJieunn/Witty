@@ -7,12 +7,9 @@ import postService from "../services/postService"
 
 const createPost = asyncWrap (async (req: Request, res: Response) => {
   const postData: PostDTO = req.body;
-  // 인가 추가
-  let userId = "1";
-  let numUserId = +userId
   let category_id = 1;
 
-  await postService.createPost(numUserId, category_id, postData);
+  await postService.createPost(category_id, postData);
   res.status(201).json({ message: "Post_Created" })
 })
 
