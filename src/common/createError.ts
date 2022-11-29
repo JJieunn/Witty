@@ -58,6 +58,16 @@ class PwMismatchError extends Error {
   }
 }
 
+class UnauthorizedExecption extends Error {
+  private statusCode: number
+
+  constructor(message: string) {
+    super(message)
+    this.name = "Unauthorizaed"
+    this.statusCode = 401
+  }
+}
+
 
 export { 
   BadRequestExceptions,
@@ -65,5 +75,6 @@ export {
   keyError,
   NotFoundError,
   DuplicateError,
-  PwMismatchError
+  PwMismatchError,
+  UnauthorizedExecption
 }

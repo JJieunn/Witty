@@ -14,6 +14,11 @@ const getUserExists = async (selectQuery: string): Promise<any> => {
 }
 
 
+const getUserById = async (query: string): Promise<any> => {
+  return await myDataSource.query(`SELECT EXISTS (SELECT id FROM users WHERE ${query}) as Exist`)
+}
+
+
 const createUser = async (userData: UserDTO): Promise<object> => {
   return await myDataSource
     .createQueryBuilder()
@@ -65,6 +70,7 @@ const getSNSUser = async (account: string, email: string) => {// 인자로 email
 
 
 
+export {getUserById}
 
 export default { 
   getUserExists,

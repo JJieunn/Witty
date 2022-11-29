@@ -35,7 +35,7 @@ const signInUser = async (userData: UserDTO) => {
   const isPasswordCorrected = bcrypt.compareSync(userData.password, userIdPw[0].password);
 
   if (!isPasswordCorrected) { throw new PwMismatchError("Password_Mismatch") }
-  else if (isPasswordCorrected) { token = jwt.sign({ account: userIdPw[0].account }, SECRET_KEY, { expiresIn: '2h' }); }
+  else if (isPasswordCorrected) { token = jwt.sign({ id: userIdPw[0].id }, SECRET_KEY, { expiresIn: '2h' }); }
   
   const user = {
     nickname: userIdPw[0].nickname,
