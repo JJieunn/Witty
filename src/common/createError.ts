@@ -63,7 +63,7 @@ class UnauthorizedExecption extends Error {
 
   constructor(message: string) {
     super(message)
-    this.name = "Unauthorizaed"
+    this.name = "Unauthorized"
     this.statusCode = 401
   }
 }
