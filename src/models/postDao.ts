@@ -4,12 +4,12 @@ import { Posts } from "../entities/post_entity";
 
 
 
-const createPost = async (userId: number, categoryId: number, postData: PostDTO): Promise<void> => {
+const createPost = async (categoryId: number, postData: PostDTO): Promise<void> => {
   await myDataSource.createQueryBuilder()
   .insert()
   .into(Posts)
   .values({
-    user_id: userId,
+    user_id: postData.foundUser,
     category_id: categoryId,
     content: postData.content
   })

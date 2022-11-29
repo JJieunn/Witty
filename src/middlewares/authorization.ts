@@ -15,7 +15,6 @@ const validateToken = async (req: Request, res: Response, next: NextFunction) =>
     const value = Object.values(userId)
 
     const [foundUser] = await getUserExistsById(value[0]);
-    console.log(foundUser)
     if(!+Object.values(foundUser)[0]) throw new NotFoundError("User_Not_Found");
     
     req.body.foundUser = value[0];
