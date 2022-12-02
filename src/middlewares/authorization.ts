@@ -27,5 +27,27 @@ const validateToken = async (req: Request, res: Response, next: NextFunction) =>
 };
 
 
+const validateTokenBycondition = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const access_token = req.headers['authorization'];
+    if(access_token) {
+      const userId = jwt.verify(access_token, SECRET_KEY);
+      const value = Object.values(userId)
+      
+      const [foundUser] = await getUserExistsById(value[0]);
+      if(!+Object.values(foundUser)[0]) throw new NotFoundError("User_Not_Found");
+      
+      req.body.foundUser = value[0];
+    } else if (!access_token) { req.body.foundUser = null; }
 
-export { validateToken };
+    next();
+
+  } catch (error) {
+    console.log(error)
+    throw new BadRequestExceptions("Invalid_Token")
+  }
+};
+
+
+
+export { validateToken, validateTokenBycondition };

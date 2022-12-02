@@ -13,19 +13,39 @@ const createPost = asyncWrap (async (req: Request, res: Response) => {
   res.status(201).json({ message: "Post_Created" })
 })
 
+
 const getAllPosts = asyncWrap (async (req: Request, res: Response) => {
-  const posts = await postService.getAllPosts();
+  const userId: number | null = req.body.foundUser;
+
+  const posts = await postService.getAllPosts(userId);
   res.status(200).json(posts)
 })
 
+
 const getPostById = asyncWrap (async (req: Request, res: Response) => {
+  const userId: number | null = req.body.foundUser;
   let postId = req.params.post_id;
   let numPostId = +postId;
 
-  const post = await postService.getPostById(numPostId);
+  const post = await postService.getPostById(userId, numPostId);
   res.status(200).json(post)
 })
 
 
+const updatePostLikeByUser = asyncWrap (async (req: Request, res: Response) => {
+  const userId= req.body.foundUser;
+  const postId = req.params.post_id;
+  const numPostId = +postId;
 
-export default { createPost, getAllPosts, getPostById }
+  const state = await postService.updatePostLikeByUser(userId, numPostId)
+  res.status(200).json(state)
+})
+
+
+
+export default { 
+  createPost,
+  getAllPosts,
+  getPostById,
+  updatePostLikeByUser
+}
