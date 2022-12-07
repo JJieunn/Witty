@@ -46,6 +46,6 @@ export class Posts {
   @OneToMany(() => Post_likes, (post_like) => post_like.post )
   post_likes!: Post_likes[];
 
-  @OneToMany(() => Post_images, (post_image) => post_image.post )
+  @OneToMany(() => Post_images, (post_image) => post_image.post, {cascade: true} )
   post_images!: Post_images[];
 }

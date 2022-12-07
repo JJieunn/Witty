@@ -18,7 +18,7 @@ export class Post_images {
   })
   created_at!: Date;
 
-  @ManyToOne(() => Posts, (post) => post.post_images )
+  @ManyToOne(() => Posts, (post) => post.post_images, {onDelete: 'CASCADE'} )
   @JoinColumn({ name: "post_id", referencedColumnName: 'id' })
   post!: Posts;
 }

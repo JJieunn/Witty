@@ -26,7 +26,7 @@ const validateToken = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-
+// 애초에 로그인해야 서비스 이용이 가능하므로 함수 하나로 통일해도 될 듯. 또한 인증인가를 둘러싸는 asnycWrap도 고민할 것. 현재 400, 401 에러처리가 제대로 안됨
 const validateTokenBycondition = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const access_token = req.headers['authorization'];
