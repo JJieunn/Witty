@@ -54,13 +54,21 @@ const deletePost = async (postId: number) => {
 const updatePostLikeByUser = async(userId: number, postId: number) => {
   const [isLiked] = await postDao.getPostLikesByUserPostId(userId, postId);
   
-  if(isLiked.Exist === "0") { 
-    await postDao.insertPostLikes(userId, postId)
-    return await postDao.getPostLike(userId, postId) }
+  switch (isLiked.Exist) {
+    case "0" :
+      await postDao.insertPostLikes(userId, postId)
+      const [case0] = await postDao.getPostLike(userId, postId)
+      case0.is_liked = +case0.is_liked;
+      return case0;
+    
+    case "1" :
+      await postDao.updatePostLikeByUser(userId, postId)
+      const [case1] = await postDao.getPostLike(userId, postId)
+      case1.is_liked = +case1.is_liked;
 
-  else if(isLiked.Exist === "1") { 
-    await postDao.updatePostLikeByUser(userId, postId)
-    return await postDao.getPostLike(userId, postId) }
+      if(case1.count_likes === null) { case1.count_likes = "0" }
+      return case1;
+  }
 }
 
 
