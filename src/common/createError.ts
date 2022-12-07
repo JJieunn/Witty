@@ -1,34 +1,46 @@
-class BadRequestExceptions extends Error {
+export class errorStatusCode extends Error {
   private statusCode: number
 
+  constructor(message: string) {
+    super(message)
+    this.statusCode = 400
+  }
+}
+
+
+export class BadRequestExceptions extends errorStatusCode {
   constructor(message: string) {
     super(message)
     this.name = "Bad Request"
-    this.statusCode = 400
   }
 }
 
-class RegExpError extends Error {
-  private statusCode: number
 
+export class RegExpError extends errorStatusCode {
   constructor(message: string) {
     super(message)
     this.name = "Regular Expresstion Error"
-    this.statusCode = 400
   }
 }
 
-class keyError extends Error {
-  private statusCode: number
 
+export class keyError extends errorStatusCode {
   constructor(message: string) {
     super(message)
     this.name = "Duplication Check Key Error"
-    this.statusCode = 400
   }
 }
 
-class NotFoundError extends Error {
+
+export class PwMismatchError extends errorStatusCode {
+  constructor(message: string) {
+    super(message)
+    this.name = "Password Mismatch Error"
+  }
+}
+
+
+export class NotFoundError extends Error {
   private statusCode: number
 
   constructor(message: string) {
@@ -38,7 +50,8 @@ class NotFoundError extends Error {
   }
 }
 
-class DuplicateError extends Error {
+
+export class DuplicateError extends Error {
   private statusCode: number
 
   constructor(message: string) {
@@ -48,17 +61,8 @@ class DuplicateError extends Error {
   }
 }
 
-class PwMismatchError extends Error {
-  private statusCode: number
 
-  constructor(message: string) {
-    super(message)
-    this.name = "Password Mismatch Error"
-    this.statusCode = 400
-  }
-}
-
-class UnauthorizedExecption extends Error {
+export class UnauthorizedExecption extends Error {
   private statusCode: number
 
   constructor(message: string) {
@@ -66,15 +70,4 @@ class UnauthorizedExecption extends Error {
     this.name = "Unauthorized"
     this.statusCode = 401
   }
-}
-
-
-export { 
-  BadRequestExceptions,
-  RegExpError,
-  keyError,
-  NotFoundError,
-  DuplicateError,
-  PwMismatchError,
-  UnauthorizedExecption
 }
