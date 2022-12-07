@@ -1,9 +1,10 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 import { Categories } from "./category_entity";
 import { Comments } from "./comments_entity";
 import { Post_images } from "./post_images_entity";
 import { Post_likes } from "./post_likes_entity";
 import { Users } from "./user_entity";
+import { Post_bookmarks } from "./post_bookmarks_entity";
 
 @Entity('posts')
 export class Posts {
@@ -48,4 +49,7 @@ export class Posts {
 
   @OneToMany(() => Post_images, (post_image) => post_image.post, {cascade: true} )
   post_images!: Post_images[];
+
+  @OneToMany(() => Post_bookmarks, (post_bookmark) => post_bookmark.post, {cascade: true} )
+  post_bookmarks!: Post_bookmarks[];
 }

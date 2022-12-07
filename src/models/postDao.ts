@@ -23,11 +23,13 @@ const getAllPosts = async (userId: number | null): Promise<object[]> => {
   let query = ""
   let select = ""
   let owner = ""
+  let bookmark = ""
 
   if(userId != null) {
-  select = `, likes.is_liked as is_liked`
+  select = `, likes.is_liked as is_liked, bookmarks.is_marked as is_marked`
   query = `LEFT JOIN (SELECT post_id, is_liked FROM post_likes WHERE user_id = ${userId}) likes ON p.id = likes.post_id`
   owner = ``
+  bookmark = `LEFT JOIN (SELECT post_id, is_marked FROM post_bookmarks WHERE user_id = ${userId}) bookmarks ON p.id = bookmarks.post_id`
   }
 
   return await myDataSource.query(`
@@ -39,6 +41,7 @@ const getAllPosts = async (userId: number | null): Promise<object[]> => {
     JOIN users u ON p.user_id = u.id
     JOIN categories cate ON p.category_id = cate.id
     ${query}
+    ${bookmark}
     LEFT JOIN (SELECT post_id, COUNT(id) as count_comments FROM comments GROUP BY post_id) c ON p.id = c.post_id
     LEFT JOIN (SELECT post_id, COUNT(id) as count_likes FROM post_likes WHERE is_liked = 1 GROUP BY post_id) pl ON p.id = pl.post_id 
     ORDER BY p.created_at DESC`)
@@ -50,7 +53,8 @@ const getPostById = async (userId: number | null, postId: number): Promise<objec
 
   let query = ""
   if(userId !== null) {
-  query = `, (SELECT is_liked FROM post_likes WHERE user_id = ${userId} AND post_id = ${postId}) as is_liked`
+  query = `, (SELECT is_liked FROM post_likes WHERE user_id = ${userId} AND post_id = ${postId}) as is_liked, 
+  (SELECT is_marked FROM post_bookmarks WHERE user_id = ${userId} AND post_id = ${postId}) as is_marked`
   }
 
   return await myDataSource.query(`

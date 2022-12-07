@@ -1,4 +1,5 @@
 import { CreatePostDTO, UpdatePostDTO } from "../dto/postDto";
+import postBookmarks from "../models/postBookmarks";
 import postDao from "../models/postDao";
 
 
@@ -63,11 +64,32 @@ const updatePostLikeByUser = async(userId: number, postId: number) => {
 }
 
 
+const updatePostBookmark = async(userId: number, postId: number) => {
+  const [isMarked] = await postBookmarks.getPostBookmarkByUserPostId(userId, postId);
+
+  switch(isMarked.Exist) { 
+    case "0" :
+      await postBookmarks.insertPostBookmarks(userId, postId)
+      const [case0] = await postBookmarks.getPostBookmark(userId, postId)
+      case0.is_marked = +case0.is_marked;
+      return case0;
+
+    case "1" : 
+      await postBookmarks.updatePostBookmark(userId, postId)
+      const [case1] = await postBookmarks.getPostBookmark(userId, postId)
+      case1.is_marked = +case1.is_marked;
+      return case1;
+    }
+} 
+
+
+
 export default { 
   createPost,
   getAllPosts,
   getPostById,
   updatePost,
   deletePost,
-  updatePostLikeByUser
+  updatePostLikeByUser,
+  updatePostBookmark
 }
