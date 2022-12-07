@@ -57,6 +57,15 @@ const updatePostLikeByUser = asyncWrap (async (req: Request, res: Response) => {
 })
 
 
+const updatePostBookmark = asyncWrap (async (req: Request, res: Response) => {
+  const userId= req.body.foundUser;
+  const postId = +req.params.post_id;
+
+  const state = await postService.updatePostBookmark(userId, postId)
+  res.status(200).json(state)
+})
+
+
 
 
 export default { 
@@ -65,5 +74,6 @@ export default {
   getPostById,
   updatePost,
   deletePost,
-  updatePostLikeByUser
+  updatePostLikeByUser,
+  updatePostBookmark
 }
