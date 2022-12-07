@@ -2,6 +2,7 @@ import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDa
 import { Comments } from "./comments_entity";
 import { Post_bookmarks } from "./post_bookmarks_entity";
 import { Posts } from "./post_entity";
+import { Post_likes } from "./post_likes_entity";
 
 @Entity('users')
 export class Users {
@@ -39,8 +40,8 @@ export class Users {
   @OneToMany(() => Comments, (comment) => comment.user)
   comments!: Comments[];
 
-  @OneToMany(() => Posts, (post_like) => post_like.user)
-  post_likes!: Posts[];
+  @OneToMany(() => Post_likes, (post_like) => post_like.user, {cascade: true})
+  post_likes!: Post_likes[];
 
   @OneToMany(() => Post_bookmarks, (post_bookmark) => post_bookmark.user, {cascade: true} )
   post_bookmarks!: Post_bookmarks[];

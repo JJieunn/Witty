@@ -44,7 +44,7 @@ export class Posts {
   @OneToMany(() => Comments, (comment) => comment.post )
   comments!: Comments[];
 
-  @OneToMany(() => Post_likes, (post_like) => post_like.post )
+  @OneToMany(() => Post_likes, (post_like) => post_like.post, {cascade: true} )
   post_likes!: Post_likes[];
 
   @OneToMany(() => Post_images, (post_image) => post_image.post, {cascade: true} )
