@@ -25,13 +25,28 @@ const createPost = async (postData: CreatePostDTO) => {
 }
 
 
-const getAllPosts = async (userId: number | null) => {
-  return await postDao.getAllPosts(userId);
+const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
+  const posts = await postDao.getAllPosts(userId, offset, limit);
+
+  if(userId !== null) {
+    posts.map((post) => {
+      if(post.user_id === userId) { post.is_owner = true }
+      else if(post.user_id !== userId) { post.is_owner = false }
+    })
+  }
+
+  return posts;
 }
 
 
 const getPostById = async (userId: number | null, postId: number) => {
-  return await postDao.getPostById(userId, postId);
+  const post = await postDao.getPostById(userId, postId);
+
+  if(userId !== null) {
+    if(post[0].user_id === userId) { post[0].is_owner = true }
+    else if (post[0].user_id !== userId) { post[0].is_owner = false }
+  }
+  return post;
 }
 
 

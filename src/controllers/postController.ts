@@ -15,8 +15,9 @@ const createPost = asyncWrap (async (req: Request, res: Response) => {
 
 const getAllPosts = asyncWrap (async (req: Request, res: Response) => {
   const userId: number | null = req.body.foundUser;
+  const { offset, limit } = req.query;
 
-  const posts = await postService.getAllPosts(userId);
+  const posts = await postService.getAllPosts(userId, offset, limit);
   res.status(200).json(posts)
 })
 
