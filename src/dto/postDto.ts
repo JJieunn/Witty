@@ -28,6 +28,11 @@ export interface returnPostDTO {
   is_owner?: boolean
 }
 
+export class CreateCommentDTO {
+  foundUser!: number;
+  comment!: string;
+}
+
 export interface commentsDTO {
   id: number,
   comment: string,

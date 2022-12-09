@@ -1,4 +1,5 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
+import { Comment_likes } from "./comment_likes_entity";
 import { Posts } from "./post_entity";
 import { Users } from "./user_entity";
 
@@ -28,6 +29,9 @@ export class Comments {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   updated_at!: Date;
+
+  @OneToMany(() => Comment_likes, (comment_like) => comment_like.comment, {cascade: true})
+  comment_likes!: Comment_likes[];
 
   @ManyToOne(() => Users, (user) => user.comments )
   @JoinColumn({ name: "user_id", referencedColumnName: 'id' })

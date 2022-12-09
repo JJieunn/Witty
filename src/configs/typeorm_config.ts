@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm"
 import { Categories } from "../entities/category_entity";
 import { Comments } from "../entities/comments_entity";
+import { Comment_likes } from "../entities/comment_likes_entity";
 import { Post_bookmarks } from "../entities/post_bookmarks_entity";
 import { Posts } from "../entities/post_entity";
 import { Post_images } from "../entities/post_images_entity";
@@ -14,7 +15,7 @@ const myDataSource = new DataSource ({
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
-  entities: [Categories ,Users, Posts, Post_likes, Post_images, Comments, Post_bookmarks],
+  entities: [Categories ,Users, Posts, Post_likes, Post_images, Comments, Post_bookmarks, Comment_likes],
   synchronize: true,
   logging: true
 });
