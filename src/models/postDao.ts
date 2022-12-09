@@ -1,18 +1,36 @@
 import { myDataSource } from "../configs/typeorm_config";
+import { DeleteResult, UpdateResult } from "typeorm";
 import { CreatePostDTO, UpdatePostDTO, returnPostDTO } from "../dto/postDto";
 import { Posts } from "../entities/post_entity";
 import { Post_images } from "../entities/post_images_entity";
-import { Post_likes } from "../entities/post_likes_entity";
+
 
 
 
 const createPost = async (categoryId: number | undefined, postData: CreatePostDTO): Promise<void> => {
-  await myDataSource.query(`
-    INSERT INTO posts (user_id, content, category_id)
-      VALUES(?, ?, ?); 
-    INSERT INTO post_images (post_id, image_url)
-      VALUES(LAST_INSERT_ID(), ?)`,
-  [postData.foundUser, postData.content, categoryId, postData.images])
+  await myDataSource.createQueryBuilder()
+    .insert()
+    .into(Posts)
+    .values({ 
+      user_id: postData.foundUser,
+      content: postData.content,
+      category_id: categoryId
+    })
+    .execute()
+}
+
+
+const createPostImages = async (postData: CreatePostDTO): Promise<void> => {
+  const [postId] = await myDataSource.query(`SELECT MAX(id) as id FROM posts WHERE user_id = ?`, [postData.foundUser])
+  
+  await myDataSource.createQueryBuilder()
+    .insert()
+    .into(Post_images)
+    .values({
+      post_id: postId,
+      image_url: postData.images
+    })
+    .execute()
 }
 
 
@@ -31,12 +49,13 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any): Prom
     SELECT 
       p.id, u.nickname, p.user_id, cate.name as category, p.category_id,
       p.content, p.created_at, c.count_comments, pl.count_likes
-      ${likeAndBookmark}
+      ${likeAndBookmark}, pi.images
     FROM posts p
     JOIN users u ON p.user_id = u.id
     JOIN categories cate ON p.category_id = cate.id
     ${leftJoinWithLikes}
     ${leftJoinWithBookmarks}
+    LEFT JOIN (SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id) pi ON p.id = pi.post_id
     LEFT JOIN (SELECT post_id, COUNT(id) as count_comments FROM comments GROUP BY post_id) c ON p.id = c.post_id
     LEFT JOIN (SELECT post_id, COUNT(id) as count_likes FROM post_likes WHERE is_liked = 1 GROUP BY post_id) pl ON p.id = pl.post_id 
     ORDER BY p.created_at DESC
@@ -55,13 +74,20 @@ const getPostById = async (userId: number | null, postId: number): Promise<retur
   return await myDataSource.query(`
     SELECT 
       p.id, u.nickname, p.user_id, cate.name as category, p.category_id,
-      p.content, p.created_at, pl.count_likes ${likeAndBookmark}, c.count_comments, c.comments
+      p.content, p.created_at, pl.count_likes ${likeAndBookmark}, comment.count_comments, pi.images, comment.comments
     FROM posts p
     JOIN users u ON p.user_id = u.id
     JOIN categories cate ON p.category_id = cate.id
+    LEFT JOIN 
+      ( SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id ) pi ON p.id = pi.post_id
+    
     LEFT JOIN
-      ( SELECT post_id, JSON_ARRAYAGG(JSON_OBJECT("id", id, "comment", comment)) as comments, COUNT(id) as count_comments 
-        FROM comments GROUP BY post_id ) c ON p.id = c.post_id
+      ( SELECT post_id, COUNT(c.id) as count_comments,
+        JSON_ARRAYAGG(
+          JSON_OBJECT("id", c.id, "user_id", user_id, "nickname", u.nickname, "created_at", c.created_at, "comment", comment)) as comments
+        FROM comments c 
+        JOIN users u ON c.user_id = u.id GROUP BY post_id ) comment ON p.id = comment.post_id
+
     LEFT JOIN
       ( SELECT post_id, COUNT(id) as count_likes 
         FROM post_likes WHERE is_liked = 1 GROUP BY post_id ) pl ON p.id = pl.post_id 
@@ -70,19 +96,19 @@ const getPostById = async (userId: number | null, postId: number): Promise<retur
 }
 
 
-const updatePost = async(postId: number, categoryId: number | undefined, postData: UpdatePostDTO) => {
-  await myDataSource.createQueryBuilder()
+const updatePost = async(postId: number, categoryId: number | undefined, postData: UpdatePostDTO): Promise<UpdateResult> => {
+  return await myDataSource.createQueryBuilder()
   .update(Posts)
   .set({
     content: postData.content,
     category_id: categoryId
   })
-  .where("id = :postId", { postId })
+  .where("id = :postId AND user_id = :userId", { postId, userId: postData.foundUser })
   .execute()
 }
 
 
-const updatePostImages = async(postId: number, postImages: string | undefined) => {
+const updatePostImages = async(postId: number, postImages: string | undefined): Promise<void> => {
   await myDataSource.createQueryBuilder()
     .update(Post_images)
     .set({
@@ -93,53 +119,12 @@ const updatePostImages = async(postId: number, postImages: string | undefined) =
 }
 
 
-const deletePost = async(postId: number) => {
+const deletePost = async(userId: number | null, postId: number): Promise<DeleteResult> => {
   return await myDataSource.createQueryBuilder()
   .delete()
   .from(Posts)
-  .where("id = :postId", { postId })
+  .where("id = :postId AND user_id = :userId", { postId, userId })
   .execute()
-}
-
-
-const getPostLikesByUserPostId = async(userId: number, postId: number) => {
-  return await myDataSource.query(`SELECT EXISTS (SELECT id FROM post_likes WHERE user_id = ? AND post_id = ?) as Exist`, [userId, postId])
-}
-
-
-const insertPostLikes = async(userId: number, postId: number) => {
-  return await myDataSource.createQueryBuilder()
-  .insert()
-  .into(Post_likes)
-  .values({
-    user_id: userId,
-    post_id: postId,
-    is_liked: "1"
-  })
-  .execute()
-}
-
-
-const updatePostLikeByUser = async(userId: number, postId: number) => {
-  await myDataSource.query(`
-    UPDATE post_likes
-    SET is_liked =
-      CASE
-        WHEN is_liked = 0 THEN 1
-        WHEN is_liked = 1 THEN 0
-      END
-    WHERE user_id = ? AND post_id = ?
-  `, [userId, postId])
-}
-
-
-const getPostLike = async(userId: number, postId: number) => {
-  return await myDataSource.query(`
-    SELECT 
-      is_liked,
-      (SELECT COUNT(id) FROM post_likes WHERE post_id = ? AND is_liked = 1 GROUP BY post_id) as count_likes
-    FROM post_likes WHERE user_id = ? AND post_id = ?  
-  `, [postId, userId, postId])
 }
 
 
@@ -147,13 +132,10 @@ const getPostLike = async(userId: number, postId: number) => {
 
 export default { 
   createPost,
+  createPostImages,
   getAllPosts,
   getPostById,
   updatePost,
   updatePostImages,
-  deletePost,
-  getPostLikesByUserPostId,
-  insertPostLikes,
-  updatePostLikeByUser,
-  getPostLike
+  deletePost
 }

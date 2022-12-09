@@ -21,9 +21,27 @@ export interface returnPostDTO {
   content: string,
   created_at: Date,
   count_comments: number | string | null,
-  comments: object[],
+  comments: commentsDTO[],
   count_likes: number | string | null,
   is_liked?: number | string | null,
   is_marked?: number | string | null,
   is_owner?: boolean
+}
+
+export interface commentsDTO {
+  id: number,
+  comment: string,
+  user_id: number,
+  nickname: string,
+  created_at: Date,
+  is_owner?: boolean
+}
+
+export interface returnPostLikeDTO {
+  count_likes: number | string,
+  is_liked: number | string
+}
+
+export interface returnBookmarkDTO {
+  is_marked: number | string
 }
