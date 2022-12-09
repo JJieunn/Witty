@@ -13,8 +13,8 @@ export class Post_likes {
   @Column("int")
   post_id!: number;
 
-  @Column("char", { length: 1 })
-  is_liked!: string;
+  @Column("tinyint")
+  is_liked!: number;
 
   @ManyToOne(() => Users, (user) => user.post_likes, {onDelete: 'CASCADE'} )
   @JoinColumn({ name: "user_id", referencedColumnName: 'id' })

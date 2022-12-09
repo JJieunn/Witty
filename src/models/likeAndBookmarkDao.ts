@@ -20,7 +20,7 @@ const insertPostLike = async(userId: number, postId: number): Promise<InsertResu
   .values({
     user_id: userId,
     post_id: postId,
-    is_liked: "1"
+    is_liked: 1
   })
   .execute()
 }
@@ -64,7 +64,7 @@ const insertPostBookmarks = async(userId: number, postId: number): Promise<void>
   .values({
     user_id: userId,
     post_id: postId,
-    is_marked: "1"
+    is_marked: 1
   })
   .execute()
 }
@@ -83,12 +83,13 @@ const updatePostBookmark = async(userId: number, postId: number): Promise<void> 
 }
 
 
-const getPostBookmark = async(userId: number, postId: number): Promise<returnBookmarkDTO[]> => {
-  return await myDataSource.query(`
-    SELECT 
-      is_marked
-    FROM post_bookmarks WHERE user_id = ? AND post_id = ?  
-  `, [userId, postId])
+const getPostBookmark = async(userId: number, postId: number): Promise<returnBookmarkDTO | undefined> => {
+  return await myDataSource.createQueryBuilder()
+    .select("is_marked")
+    .from(Post_bookmarks, "bookmark")
+    .where("user_id = :userId", { userId })
+    .andWhere("post_id = :postId", { postId })
+    .getRawOne()
 }
 
 
