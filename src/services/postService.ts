@@ -91,14 +91,12 @@ const updatePostLikeByUser = async(userId: number, postId: number) => {
     case "0" :
       await likeAndBookmarkDao.insertPostLike(userId, postId)
       const [case0] = await likeAndBookmarkDao.getPostLike(userId, postId)
-      case0.is_liked = +case0.is_liked;
       case0.count_likes = +case0.count_likes;
       return case0;
     
     case "1" :
       await likeAndBookmarkDao.updatePostLikeByUser(userId, postId)
       const [case1] = await likeAndBookmarkDao.getPostLike(userId, postId)
-      case1.is_liked = +case1.is_liked;
       case1.count_likes = +case1.count_likes;
       if(case1.count_likes === null) { case1.count_likes = 0 }
       return case1;
@@ -112,15 +110,11 @@ const updatePostBookmark = async(userId: number, postId: number) => {
   switch(isMarked.Exist) { 
     case "0" :
       await likeAndBookmarkDao.insertPostBookmarks(userId, postId)
-      const [case0] = await likeAndBookmarkDao.getPostBookmark(userId, postId)
-      case0.is_marked = +case0.is_marked;
-      return case0;
+      return await likeAndBookmarkDao.getPostBookmark(userId, postId)
 
     case "1" : 
       await likeAndBookmarkDao.updatePostBookmark(userId, postId)
-      const [case1] = await likeAndBookmarkDao.getPostBookmark(userId, postId)
-      case1.is_marked = +case1.is_marked;
-      return case1;
+      return await likeAndBookmarkDao.getPostBookmark(userId, postId)
     }
 } 
 

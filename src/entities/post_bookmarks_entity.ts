@@ -13,8 +13,8 @@ export class Post_bookmarks {
   @Column("int")
   post_id!: number;
 
-  @Column("char", { length: 1 })
-  is_marked!: string;
+  @Column("tinyint")
+  is_marked!: number;
 
   @ManyToOne(() => Users, (user) => user.post_bookmarks, {onDelete: 'CASCADE'} )
   @JoinColumn({ name: "user_id", referencedColumnName: 'id' })

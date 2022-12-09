@@ -44,9 +44,9 @@ export interface commentsDTO {
 
 export interface returnPostLikeDTO {
   count_likes: number | string,
-  is_liked: number | string
+  is_liked: number
 }
 
 export interface returnBookmarkDTO {
-  is_marked: number | string
+  is_marked: number
 }
