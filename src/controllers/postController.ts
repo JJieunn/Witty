@@ -32,19 +32,19 @@ const getPostById = asyncWrap (async (req: Request, res: Response) => {
 
 
 const updatePost = asyncWrap (async (req: Request, res: Response) => {
-  const userId: number | null = req.body.foundUser;
   const postId = +req.params.post_id;
   const postData: UpdatePostDTO = req.body;
 
-  const post = await postService.updatePost(userId, postId, postData)
-  res.status(200).json(post)
+  await postService.updatePost(postId, postData)
+  res.status(200).json({ message: "Update_Success" })
 })
 
 
 const deletePost = asyncWrap (async (req: Request, res: Response) => {
+  const userId: number | null = req.body.foundUser;
   const postId = +req.params.post_id;
 
-  await postService.deletePost(postId);
+  await postService.deletePost(userId, postId);
   res.status(204).json({ message: "Delete_Success" })
 })
 

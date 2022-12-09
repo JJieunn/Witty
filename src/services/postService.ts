@@ -1,5 +1,5 @@
 import { CreatePostDTO, UpdatePostDTO } from "../dto/postDto";
-import postBookmarks from "../models/postBookmarks";
+import likeAndBookmarkDao from "../models/likeAndBookmarkDao";
 import postDao from "../models/postDao";
 
 
@@ -22,6 +22,7 @@ const createPost = async (postData: CreatePostDTO) => {
 
   categoryId = await getCategoryId(postData.category);
   await postDao.createPost(categoryId, postData);
+  await postDao.createPostImages(postData);
 }
 
 
@@ -32,6 +33,11 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
     posts.map((post) => {
       if(post.user_id === userId) { post.is_owner = true }
       else if(post.user_id !== userId) { post.is_owner = false }
+
+      if(post.count_comments !== null) post.count_comments = +post.count_comments
+      if(post.count_likes !== null) post.count_likes = +post.count_likes
+      if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked
+      if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
     })
   }
 
@@ -46,60 +52,73 @@ const getPostById = async (userId: number | null, postId: number) => {
     if(post[0].user_id === userId) { post[0].is_owner = true }
     else if (post[0].user_id !== userId) { post[0].is_owner = false }
   }
+
+  if(userId !== null && post[0].comments !== null) {
+    post[0].comments.map((comment) => {
+      if(comment.user_id === userId) { comment.is_owner = true }
+      else if (comment.user_id !== userId) { comment.is_owner = false }
+    })
+  }
+
+  if(post[0].count_comments !== null) post[0].count_comments = +post[0].count_comments
+  if(post[0].count_likes !== null) post[0].count_likes = +post[0].count_likes
+  if(post[0].is_liked !== null && post[0].is_liked !== undefined) post[0].is_liked = +post[0].is_liked
+  if(post[0].is_marked !== null && post[0].is_marked !== undefined) post[0].is_marked = +post[0].is_marked
+
   return post;
 }
 
 
-const updatePost = async (userId: number | null, postId: number, postData: UpdatePostDTO) => {
+const updatePost = async (postId: number, postData: UpdatePostDTO) => {
   let categoryId: number | undefined; 
 
   if(Object.keys(postData).includes("category")) { categoryId = await getCategoryId(postData.category) }
   if(Object.keys(postData).includes("images")) { await postDao.updatePostImages(postId, postData.images) }
 
-  await postDao.updatePost(postId, categoryId, postData);
-  return await postDao.getPostById(userId, postId);
+  return await postDao.updatePost(postId, categoryId, postData);
 }
 
 
-const deletePost = async (postId: number) => {
-  return await postDao.deletePost(postId);
+const deletePost = async (userId: number | null, postId: number) => {
+  return await postDao.deletePost(userId, postId);
 }
 
 
 const updatePostLikeByUser = async(userId: number, postId: number) => {
-  const [isLiked] = await postDao.getPostLikesByUserPostId(userId, postId);
+  const [isLiked] = await likeAndBookmarkDao.isPostLikeExistedInEntity(userId, postId);
   
   switch (isLiked.Exist) {
     case "0" :
-      await postDao.insertPostLikes(userId, postId)
-      const [case0] = await postDao.getPostLike(userId, postId)
+      await likeAndBookmarkDao.insertPostLike(userId, postId)
+      const [case0] = await likeAndBookmarkDao.getPostLike(userId, postId)
       case0.is_liked = +case0.is_liked;
+      case0.count_likes = +case0.count_likes;
       return case0;
     
     case "1" :
-      await postDao.updatePostLikeByUser(userId, postId)
-      const [case1] = await postDao.getPostLike(userId, postId)
+      await likeAndBookmarkDao.updatePostLikeByUser(userId, postId)
+      const [case1] = await likeAndBookmarkDao.getPostLike(userId, postId)
       case1.is_liked = +case1.is_liked;
-
-      if(case1.count_likes === null) { case1.count_likes = "0" }
+      case1.count_likes = +case1.count_likes;
+      if(case1.count_likes === null) { case1.count_likes = 0 }
       return case1;
   }
 }
 
 
 const updatePostBookmark = async(userId: number, postId: number) => {
-  const [isMarked] = await postBookmarks.getPostBookmarkByUserPostId(userId, postId);
+  const [isMarked] = await likeAndBookmarkDao.isBookmarkExistedInEntity(userId, postId);
 
   switch(isMarked.Exist) { 
     case "0" :
-      await postBookmarks.insertPostBookmarks(userId, postId)
-      const [case0] = await postBookmarks.getPostBookmark(userId, postId)
+      await likeAndBookmarkDao.insertPostBookmarks(userId, postId)
+      const [case0] = await likeAndBookmarkDao.getPostBookmark(userId, postId)
       case0.is_marked = +case0.is_marked;
       return case0;
 
     case "1" : 
-      await postBookmarks.updatePostBookmark(userId, postId)
-      const [case1] = await postBookmarks.getPostBookmark(userId, postId)
+      await likeAndBookmarkDao.updatePostBookmark(userId, postId)
+      const [case1] = await likeAndBookmarkDao.getPostBookmark(userId, postId)
       case1.is_marked = +case1.is_marked;
       return case1;
     }
