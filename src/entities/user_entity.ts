@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
 import { Comments } from "./comments_entity";
+import { Comment_likes } from "./comment_likes_entity";
 import { Post_bookmarks } from "./post_bookmarks_entity";
 import { Posts } from "./post_entity";
 import { Post_likes } from "./post_likes_entity";
@@ -39,6 +40,9 @@ export class Users {
 
   @OneToMany(() => Comments, (comment) => comment.user)
   comments!: Comments[];
+
+  @OneToMany(() => Comment_likes, (comment_like) => comment_like.user, {cascade: true})
+  comment_likes!: Comment_likes[];
 
   @OneToMany(() => Post_likes, (post_like) => post_like.user, {cascade: true})
   post_likes!: Post_likes[];
