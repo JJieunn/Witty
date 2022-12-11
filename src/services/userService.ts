@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import userDao from "../models/userDao"
-import { UserDTO } from "../dto/userDto"
+import { CreateUserDTO, UpdateUserDTO } from "../dto/userDto"
 import { BadRequestExceptions, keyError, PwMismatchError } from "../common/createError"
 import { SECRET_KEY, JavaScript_Key, REDIRECT_URI } from "../configs/keyConfig"
 
@@ -19,7 +19,7 @@ const userAvailableCheck = async (userData: object) => {
 }
 
 
-const createUser = async (userData: UserDTO) => {
+const createUser = async (userData: CreateUserDTO) => {
   const salt = bcrypt.genSaltSync(12);
   const hashedPw = bcrypt.hashSync(userData.password, salt);
   userData.password = hashedPw;
@@ -28,10 +28,11 @@ const createUser = async (userData: UserDTO) => {
 }
 
 
-const signInUser = async (userData: UserDTO) => {
+const signInUser = async (userData: CreateUserDTO) => {
   let token = ""
 
   const userIdPw = await userDao.getUserByAccount(userData);
+  console.log(userIdPw)
   const isPasswordCorrected = bcrypt.compareSync(userData.password, userIdPw[0].password);
 
   if (!isPasswordCorrected) { throw new PwMismatchError("Password_Mismatch") }
@@ -106,7 +107,6 @@ const kakaoLogin = async (authorizeCode: any) => {
 
 
 const kakaoLogout = () => {
-  console.log(accessToken)
   return axios({
       method: "POST",
       url: "https://kapi.kakao.com/v1/user/logout",
@@ -118,11 +118,48 @@ const kakaoLogout = () => {
 }
 
 
+const getMyPage = async (userId: number) => {
+  return await userDao.getMyPage(userId)
+}
+
+
+const updateUserName = async (updateData: UpdateUserDTO) => {
+  return await userDao.updateUserName(updateData)
+}
+
+
+const getMyPosts = async (userId: number) => {
+  const posts = await userDao.getMyPosts(userId)
+  posts.map((post) => {
+    if(post.count_comments !== null) post.count_comments = +post.count_comments
+    if(post.count_likes !== null) post.count_likes = +post.count_likes
+    if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked
+    if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
+  })
+
+  return posts;
+}
+
+
+const getMyBookmarks = async (userId: number) => {
+  return await userDao.getMyBookmarks(userId)
+}
+
+
+const updateWithdrowUser = async (userId: number) => {
+  return await userDao.updateWithdrowUser(userId)
+}
+
 
 export default { 
   userAvailableCheck,
   createUser,
   signInUser,
   kakaoLogin,
-  kakaoLogout
+  kakaoLogout,
+  getMyPage,
+  getMyPosts,
+  getMyBookmarks,
+  updateUserName,
+  updateWithdrowUser
 }
