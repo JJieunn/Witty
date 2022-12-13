@@ -131,6 +131,7 @@ const updateUserName = async (updateData: UpdateUserDTO) => {
 const getMyPosts = async (userId: number) => {
   const posts = await userDao.getMyPosts(userId)
   posts.map((post) => {
+    post.category = JSON.parse(post.category)
     if(post.count_comments !== null) post.count_comments = +post.count_comments
     if(post.count_likes !== null) post.count_likes = +post.count_likes
     if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked

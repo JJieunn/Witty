@@ -4,42 +4,34 @@ import postDao from "../models/postDao";
 
 
 
-const getCategoryId = async (category: string | undefined) => {
-  let categoryId: number;
-
-  switch (category) {
-    case "오늘먹은것" : return categoryId = 1
-    case "오늘기분" : return categoryId = 2
-    case "오늘소비" : return categoryId = 3
-    case "오늘잡담" : return categoryId = 4
-    case "오늘아무거나" : return categoryId = 5
-  }
-}
-
 
 const createPost = async (postData: CreatePostDTO) => {
-  let categoryId: number | undefined;
-
-  categoryId = await getCategoryId(postData.category);
-  await postDao.createPost(categoryId, postData);
-  await postDao.createPostImages(postData);
+  await postDao.createPost(JSON.stringify(postData.category), postData);
+  
+  if(postData.images !== undefined) {
+    postData.images.map( async (image) => {
+      await postDao.createPostImages(postData.foundUser, image)
+    })
+  }
 }
 
 
 const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
   const posts = await postDao.getAllPosts(userId, offset, limit);
 
-  if(userId !== null) {
-    posts.map((post) => {
+  posts.map((post) => {
+    if(userId !== null) {
       if(post.user_id === userId) { post.is_owner = true }
       else if(post.user_id !== userId) { post.is_owner = false }
 
-      if(post.count_comments !== null) post.count_comments = +post.count_comments
-      if(post.count_likes !== null) post.count_likes = +post.count_likes
       if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked
       if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
-    })
-  }
+    }
+
+    post.category_id = JSON.parse(post.category_id)
+    if(post.count_comments !== null) post.count_comments = +post.count_comments
+    if(post.count_likes !== null) post.count_likes = +post.count_likes
+  })
 
   return posts;
 }
@@ -60,6 +52,7 @@ const getPostById = async (userId: number | null, postId: number) => {
     })
   }
 
+  post[0].category_id = JSON.parse(post[0].category_id)
   if(post[0].count_comments !== null) post[0].count_comments = +post[0].count_comments
   if(post[0].count_likes !== null) post[0].count_likes = +post[0].count_likes
   if(post[0].is_liked !== null && post[0].is_liked !== undefined) post[0].is_liked = +post[0].is_liked
@@ -70,12 +63,16 @@ const getPostById = async (userId: number | null, postId: number) => {
 
 
 const updatePost = async (postId: number, postData: UpdatePostDTO) => {
-  let categoryId: number | undefined; 
 
-  if(Object.keys(postData).includes("category")) { categoryId = await getCategoryId(postData.category) }
-  if(Object.keys(postData).includes("images")) { await postDao.updatePostImages(postId, postData.images) }
+  if(postData.images !== undefined) {
+    postData.images.map( async (image) => {
+      await postDao.updatePostImages(postId, image)
+    })
+  }
 
-  return await postDao.updatePost(postId, categoryId, postData);
+// 수정된 이미지 업로드 추가
+
+  return await postDao.updatePost(postId, JSON.stringify(postData.category), postData);
 }
 
 

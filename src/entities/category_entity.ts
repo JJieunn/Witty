@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Posts } from "./post_entity";
 
 @Entity('categories')
@@ -18,6 +18,6 @@ export class Categories {
   })
   created_at!: Date;
 
-  @OneToMany(() => Posts, (post) => post.category )
-  posts!: Posts[];
+  // @OneToMany(() => Posts, (post) => post.category )
+  // posts!: Posts[];
 }
