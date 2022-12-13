@@ -1,23 +1,22 @@
 export class CreatePostDTO {
   foundUser!: number;
-  category!: string;
+  category!: string[];
   content!: string;
-  images?: string;
+  images?: string[];
 }
 
 export class UpdatePostDTO {
   foundUser!: number;
-  category?: string;
+  category?: string[];
   content?: string;
-  images?: string;
+  images?: string[];
 }
 
 export interface returnPostDTO {
   id: number,
   nickname: string,
   user_id: number,
-  category: string,
-  category_id: number,
+  category_id: string,
   content: string,
   created_at: Date,
   count_comments: number | string | null,

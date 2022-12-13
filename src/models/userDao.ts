@@ -1,10 +1,7 @@
 import { DuplicateError } from "../common/createError"
 import { myDataSource } from "../configs/typeorm_config"
 import { CreateUserDTO, UpdateUserDTO } from "../dto/userDto"
-import { Categories } from "../entities/category_entity"
-import { Post_bookmarks } from "../entities/post_bookmarks_entity"
 import { Posts } from "../entities/post_entity"
-import { Post_images } from "../entities/post_images_entity"
 import { Users } from "../entities/user_entity"
 
 
@@ -98,10 +95,9 @@ const getMyPosts = async (userId: number) => {
     .createQueryBuilder("posts")
     .select(["posts.id AS id", "posts.content AS content", "posts.created_at AS created_at",
         "post_images.post_id AS images",
-        "category.id AS category_id", "category.name AS category"])
+        "posts.category_id AS category"])
     .addSelect("COUNT(comments.id) AS count_comments")
     .addSelect("COUNT(post_likes.id) AS count_likes")
-    .innerJoin("posts.category", "category")
     .leftJoin("posts.comments", "comments")
     .leftJoin("posts.post_likes", "post_likes")
     .leftJoin("posts.post_images", "post_images")
@@ -115,15 +111,14 @@ const getMyPosts = async (userId: number) => {
 const getMyBookmarks = async (userId: number) => {
   return await myDataSource.query(`
   SELECT DISTINCT 
-    bookmarks.id, bookmarks.post_id, p.content, p.category_id as category_id, p.category as category, 
+    bookmarks.id, bookmarks.post_id, p.content, p.category, 
     p.count_likes, p.count_comments, p.images
   FROM post_bookmarks bookmarks
   JOIN
     (	SELECT 
-        posts.id, posts.content, categories.id as category_id, categories.name as category,
+        posts.id, posts.content, posts.category_id as category,
         post_images.post_id as images, COUNT(post_likes.id) as count_likes, COUNT(comments.id) as count_comments
       FROM posts
-      JOIN categories ON posts.category_id = categories.id
       LEFT JOIN post_images ON posts.id = post_images.post_id
       LEFT JOIN post_likes ON posts.id = post_likes.post_id
       LEFT JOIN comments ON posts.id = comments.post_id

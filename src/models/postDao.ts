@@ -7,7 +7,7 @@ import { Post_images } from "../entities/post_images_entity";
 
 
 
-const createPost = async (categoryId: number | undefined, postData: CreatePostDTO): Promise<void> => {
+const createPost = async (categoryId: string, postData: CreatePostDTO): Promise<void> => {
   await myDataSource.createQueryBuilder()
     .insert()
     .into(Posts)
@@ -20,15 +20,15 @@ const createPost = async (categoryId: number | undefined, postData: CreatePostDT
 }
 
 
-const createPostImages = async (postData: CreatePostDTO): Promise<void> => {
-  const [postId] = await myDataSource.query(`SELECT MAX(id) as id FROM posts WHERE user_id = ?`, [postData.foundUser])
+const createPostImages = async (userId: number, postImage: string): Promise<void> => {
+  const [postId] = await myDataSource.query(`SELECT MAX(id) as id FROM posts WHERE user_id = ?`, [userId])
   
   await myDataSource.createQueryBuilder()
     .insert()
     .into(Post_images)
     .values({
       post_id: postId,
-      image_url: postData.images
+      image_url: postImage
     })
     .execute()
 }
@@ -47,12 +47,11 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any): Prom
 
   return await myDataSource.query(`
     SELECT 
-      p.id, u.nickname, p.user_id, cate.name as category, p.category_id,
+      p.id, u.nickname, p.user_id, p.category_id,
       p.content, p.created_at, c.count_comments, pl.count_likes
       ${likeAndBookmark}, pi.images
     FROM posts p
     JOIN users u ON p.user_id = u.id
-    JOIN categories cate ON p.category_id = cate.id
     ${leftJoinWithLikes}
     ${leftJoinWithBookmarks}
     LEFT JOIN (SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id) pi ON p.id = pi.post_id
@@ -73,11 +72,10 @@ const getPostById = async (userId: number | null, postId: number): Promise<retur
 
   return await myDataSource.query(`
     SELECT 
-      p.id, u.nickname, p.user_id, cate.name as category, p.category_id,
+      p.id, u.nickname, p.user_id, p.category_id,
       p.content, p.created_at, pl.count_likes ${likeAndBookmark}, comment.count_comments, pi.images, comment.comments
     FROM posts p
     JOIN users u ON p.user_id = u.id
-    JOIN categories cate ON p.category_id = cate.id
     LEFT JOIN 
       ( SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id ) pi ON p.id = pi.post_id
     
@@ -96,23 +94,23 @@ const getPostById = async (userId: number | null, postId: number): Promise<retur
 }
 
 
-const updatePost = async(postId: number, categoryId: number | undefined, postData: UpdatePostDTO): Promise<UpdateResult> => {
+const updatePost = async(postId: number, category: string | undefined, postData: UpdatePostDTO): Promise<UpdateResult> => {
   return await myDataSource.createQueryBuilder()
   .update(Posts)
   .set({
     content: postData.content,
-    category_id: categoryId
+    category_id: category
   })
   .where("id = :postId AND user_id = :userId", { postId, userId: postData.foundUser })
   .execute()
 }
 
 
-const updatePostImages = async(postId: number, postImages: string | undefined): Promise<void> => {
+const updatePostImages = async(postId: number, postImage: string): Promise<void> => {
   await myDataSource.createQueryBuilder()
     .update(Post_images)
     .set({
-      image_url: postImages
+      image_url: postImage
     })
     .where("id = :postId", {postId})
     .execute()

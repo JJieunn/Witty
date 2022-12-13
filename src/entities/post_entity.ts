@@ -17,8 +17,8 @@ export class Posts {
   @Column("int")
   user_id!: number;
 
-  @Column("int")
-  category_id!: number;
+  @Column("varchar")
+  category_id!: string;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -37,9 +37,9 @@ export class Posts {
   @JoinColumn({ name: "user_id", referencedColumnName: 'id' })
   user!: Users;
 
-  @ManyToOne(() => Categories, (category) => category.posts )
-  @JoinColumn({ name: "category_id", referencedColumnName: 'id' })
-  category!: Categories;
+  // @ManyToOne(() => Categories, (category) => category.posts )
+  // @JoinColumn({ name: "category_id", referencedColumnName: 'id' })
+  // category!: Categories;
 
   @OneToMany(() => Comments, (comment) => comment.post )
   comments!: Comments[];
