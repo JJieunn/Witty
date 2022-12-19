@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { asyncWrap } from "../common/asyncWrap";
-import { CreateCommentDTO } from "../dto/postDto";
+import { CreateCommentDTO } from "../dto/commentDto";
 import commentService from "../services/commentService"
 
 
@@ -17,10 +17,11 @@ const createComment = asyncWrap (async (req: Request, res: Response) => {
 
 const deleteComment = asyncWrap (async (req: Request, res: Response) => {
   const userId= req.body.foundUser;
+  const postId = +req.params.post_id;
   const commentId = +req.params.comment_id;
 
-  await commentService.deleteComment(userId, commentId)
-  res.status(204).json({ message: "Comment_Deleted" })
+  const comments = await commentService.deleteComment(userId, postId, commentId)
+  res.status(200).json(comments)
 })
 
 
