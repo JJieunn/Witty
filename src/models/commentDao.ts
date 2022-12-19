@@ -1,5 +1,5 @@
 import { myDataSource } from "../configs/typeorm_config";
-import { CreateCommentDTO } from "../dto/postDto";
+import { CreateCommentDTO } from "../dto/commentDto";
 import { Comments } from "../entities/comments_entity";
 import { Comment_likes } from "../entities/comment_likes_entity";
 
@@ -19,8 +19,8 @@ const createComment = async(postId: number, commentData: CreateCommentDTO): Prom
 }
 
 
-const deleteComment = async(userId: number, commentId: number) => {
-  return await myDataSource.createQueryBuilder()
+const deleteComment = async(userId: number, commentId: number): Promise<void> => {
+  await myDataSource.createQueryBuilder()
   .delete()
   .from(Comments)
   .where("id = :commentId AND user_id = :userId", { commentId, userId })
@@ -46,7 +46,7 @@ const insertCommentLike = async(userId: number, commentId: number) => {
 }
 
 
-const updateCommentLikeByUser = async(userId: number, commentId: number) => {
+const updateCommentLikeByUser = async(userId: number, commentId: number): Promise<void> => {
   await myDataSource.query(`
   UPDATE comment_likes
   SET is_liked =

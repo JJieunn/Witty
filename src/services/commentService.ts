@@ -1,4 +1,5 @@
-import { CreateCommentDTO } from "../dto/postDto";
+import { CreateCommentDTO, returnCommentDTO } from "../dto/commentDto";
+import postDao from "../models/postDao";
 import commentDao from "../models/commentDao";
 
 
@@ -9,8 +10,28 @@ const createComment = async(postId: number, commentData: CreateCommentDTO) => {
 }
 
 
-const deleteComment = async(userId: number, commentId: number) => {
-  return await commentDao.deleteComment(userId, commentId);
+const deleteComment = async(userId: number, postId: number, commentId: number) => {
+  await commentDao.deleteComment(userId, commentId);
+  const [commentList] = await postDao.getCommentsByPost(userId, postId);
+  let result: returnCommentDTO = {
+    comments: []
+  }
+
+  if(commentList !== undefined) {
+    if(userId !== null && commentList.comments.length !== 0) {
+      commentList.comments.map((comment) => {
+        if(comment.user_id === userId) { comment.is_owner = true }
+        else if (comment.user_id !== userId) { comment.is_owner = false }
+
+        if(comment.is_liked !== null && comment.is_liked !== undefined) comment.is_liked = +comment.is_liked
+      })
+    }
+
+    result.comments = commentList.comments;
+  } 
+  else if(commentList === undefined) result.comments = [];
+  
+  return result.comments;
 }
 
 

@@ -1,6 +1,7 @@
 import { myDataSource } from "../configs/typeorm_config";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { CreatePostDTO, UpdatePostDTO, returnPostDTO } from "../dto/postDto";
+import { returnCommentDTO } from "../dto/commentDto";
 import { Posts } from "../entities/post_entity";
 import { Post_images } from "../entities/post_images_entity";
 
@@ -47,7 +48,7 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any): Prom
 
   return await myDataSource.query(`
     SELECT 
-      p.id, u.nickname, p.user_id, p.category_id,
+      p.id, u.nickname, p.user_id, p.category_id as category,
       p.content, p.created_at, c.count_comments, pl.count_likes
       ${likeAndBookmark}, pi.images
     FROM posts p
@@ -71,26 +72,49 @@ const getPostById = async (userId: number | null, postId: number): Promise<retur
   }
 
   return await myDataSource.query(`
-    SELECT 
-      p.id, u.nickname, p.user_id, p.category_id,
-      p.content, p.created_at, pl.count_likes ${likeAndBookmark}, comment.count_comments, pi.images, comment.comments
-    FROM posts p
-    JOIN users u ON p.user_id = u.id
-    LEFT JOIN 
-      ( SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id ) pi ON p.id = pi.post_id
-    
-    LEFT JOIN
-      ( SELECT post_id, COUNT(c.id) as count_comments,
-        JSON_ARRAYAGG(
-          JSON_OBJECT("id", c.id, "user_id", user_id, "nickname", u.nickname, "created_at", c.created_at, "comment", comment)) as comments
-        FROM comments c 
-        JOIN users u ON c.user_id = u.id GROUP BY post_id ) comment ON p.id = comment.post_id
+  SELECT 
+    p.id, u.nickname, p.user_id, p.category_id as category, p.content, p.created_at, pl.count_likes, c.count_comments 
+    ${likeAndBookmark}, pi.images
+  FROM posts p
+  JOIN users u ON p.user_id = u.id
+  LEFT JOIN 
+    ( SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id ) pi ON p.id = pi.post_id
 
-    LEFT JOIN
-      ( SELECT post_id, COUNT(id) as count_likes 
-        FROM post_likes WHERE is_liked = 1 GROUP BY post_id ) pl ON p.id = pl.post_id 
-    WHERE p.id = ?
-  `, [postId]);
+  LEFT JOIN
+    ( SELECT post_id, COUNT(id) as count_likes 
+      FROM post_likes WHERE is_liked = 1 GROUP BY post_id ) pl ON p.id = pl.post_id 
+
+  LEFT JOIN (SELECT post_id, COUNT(id) as count_comments FROM comments GROUP BY post_id) c ON p.id = c.post_id
+  WHERE p.id = ?
+  `, [postId])
+}
+
+
+const getCommentsByPost = async(userId: number | null, postId: number): Promise<returnCommentDTO[]> => {
+  let is_liked = ""
+  let leftJoinWithLikes = ""
+
+  if(userId !== null) {
+    is_liked = `"is_liked", c_likes.is_liked,`
+    leftJoinWithLikes = `LEFT JOIN (SELECT comment_id, is_liked FROM comment_likes WHERE user_id = ${userId}) c_likes ON c.id = c_likes.comment_id`
+  }
+
+  return await myDataSource.query(`
+    SELECT
+    JSON_ARRAYAGG(
+      JSON_OBJECT(
+        "id", c.id, "user_id", user_id, "nickname", u.nickname,
+        "count_likes", likes.count_likes, "comment", comment,
+        ${is_liked}
+        "created_at", c.created_at)) as comments
+    FROM comments c 
+    JOIN users u ON c.user_id = u.id
+    ${leftJoinWithLikes}
+    LEFT JOIN 
+      ( SELECT comment_id, COUNT(id) as count_likes FROM comment_likes WHERE is_liked = 1 GROUP BY comment_id) likes ON c.id = likes.comment_id
+    WHERE post_id = ?
+    GROUP BY post_id
+  `, [postId])
 }
 
 
@@ -133,6 +157,7 @@ export default {
   createPostImages,
   getAllPosts,
   getPostById,
+  getCommentsByPost,
   updatePost,
   updatePostImages,
   deletePost

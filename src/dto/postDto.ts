@@ -1,3 +1,5 @@
+import { comments } from "./commentDto";
+
 export class CreatePostDTO {
   foundUser!: number;
   category!: string[];
@@ -16,29 +18,19 @@ export interface returnPostDTO {
   id: number,
   nickname: string,
   user_id: number,
-  category_id: string,
+  category: string,
   content: string,
   created_at: Date,
   count_comments: number | string | null,
-  comments: commentsDTO[],
   count_likes: number | string | null,
   is_liked?: number | string | null,
   is_marked?: number | string | null,
   is_owner?: boolean
 }
 
-export class CreateCommentDTO {
-  foundUser!: number;
-  comment!: string;
-}
-
-export interface commentsDTO {
-  id: number,
-  comment: string,
-  user_id: number,
-  nickname: string,
-  created_at: Date,
-  is_owner?: boolean
+export interface postDTO {
+  post: returnPostDTO,
+  comments?: comments[]
 }
 
 export interface returnPostLikeDTO {

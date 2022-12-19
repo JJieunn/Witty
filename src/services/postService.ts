@@ -1,4 +1,4 @@
-import { CreatePostDTO, UpdatePostDTO } from "../dto/postDto";
+import { CreatePostDTO, UpdatePostDTO, postDTO } from "../dto/postDto";
 import likeAndBookmarkDao from "../models/likeAndBookmarkDao";
 import postDao from "../models/postDao";
 
@@ -18,7 +18,7 @@ const createPost = async (postData: CreatePostDTO) => {
 
 const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
   const posts = await postDao.getAllPosts(userId, offset, limit);
-
+  
   posts.map((post) => {
     if(userId !== null) {
       if(post.user_id === userId) { post.is_owner = true }
@@ -28,7 +28,7 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
       if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
     }
 
-    post.category_id = JSON.parse(post.category_id)
+    post.category = JSON.parse(post.category)
     if(post.count_comments !== null) post.count_comments = +post.count_comments
     if(post.count_likes !== null) post.count_likes = +post.count_likes
   })
@@ -38,27 +38,39 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
 
 
 const getPostById = async (userId: number | null, postId: number) => {
-  const post = await postDao.getPostById(userId, postId);
-
+  const [post] = await postDao.getPostById(userId, postId);
+  const [commentList] = await postDao.getCommentsByPost(userId, postId);
+  let result: postDTO = {
+    post
+  }
+  
   if(userId !== null) {
-    if(post[0].user_id === userId) { post[0].is_owner = true }
-    else if (post[0].user_id !== userId) { post[0].is_owner = false }
+    if(post.user_id === userId) { post.is_owner = true }
+    else if (post.user_id !== userId) { post.is_owner = false }
   }
+  
+  post.category = JSON.parse(post.category)
+  if(post.count_comments !== null) post.count_comments = +post.count_comments
+  if(post.count_likes !== null) post.count_likes = +post.count_likes
+  if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked
+  if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
 
-  if(userId !== null && post[0].comments !== null) {
-    post[0].comments.map((comment) => {
-      if(comment.user_id === userId) { comment.is_owner = true }
-      else if (comment.user_id !== userId) { comment.is_owner = false }
-    })
-  }
+  if(commentList !== undefined) {
+    if(userId !== null && commentList.comments.length !== 0) {
+      commentList.comments.map((comment) => {
+        if(comment.user_id === userId) { comment.is_owner = true }
+        else if(comment.user_id !== userId) { comment.is_owner = false }
 
-  post[0].category_id = JSON.parse(post[0].category_id)
-  if(post[0].count_comments !== null) post[0].count_comments = +post[0].count_comments
-  if(post[0].count_likes !== null) post[0].count_likes = +post[0].count_likes
-  if(post[0].is_liked !== null && post[0].is_liked !== undefined) post[0].is_liked = +post[0].is_liked
-  if(post[0].is_marked !== null && post[0].is_marked !== undefined) post[0].is_marked = +post[0].is_marked
+        if(comment.is_liked !== null && comment.is_liked !== undefined) { comment.is_liked = +comment.is_liked }
+      })
+    }
 
-  return post;
+    result.comments = commentList.comments;
+  } 
+  else if(commentList === undefined) result.comments = [];
+
+  result.post = post;
+  return result;
 }
 
 
