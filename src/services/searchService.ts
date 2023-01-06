@@ -68,7 +68,6 @@ const getCategoryByKeyword = async(userId: number | null, keyword: searchDTO, of
 const getPostByCategory = async(userId: number | null, keyword: searchDTO, offset: any) => {
   let categoryArr: string[] = [];
 
-  console.log(11111111, userId)
   JSON.stringify(keyword.category).split('"').map((el) => {
     const category = getCategoryById(el)
     if(category !== undefined) { 

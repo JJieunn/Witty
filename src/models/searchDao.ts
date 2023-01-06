@@ -30,8 +30,8 @@ const getPostByKeyword = async(userId: number | null, keyword: searchDTO, offset
     LEFT JOIN (SELECT post_id, COUNT(id) as count_likes FROM post_likes WHERE is_liked = 1 GROUP BY post_id) pl ON p.id = pl.post_id 
     WHERE content REGEXP ?
     ORDER BY p.created_at DESC
-    LIMIT 12 * ?, 12
-  `, [keyword.q, +offset])
+    LIMIT ?, 12
+  `, [keyword.q, +offset * 12])
 }
 
 
@@ -41,8 +41,8 @@ const getUserByKeyword = async(keyword: searchDTO, offset: any) => {
       id, nickname, account
     FROM users
     WHERE nickname REGEXP ?
-    LIMIT 12 * ?, 12
-  `, [keyword.q, +offset])
+    LIMIT ?, 12
+  `, [keyword.q, +offset * 12])
 }
 
 
@@ -71,8 +71,8 @@ const getCategoryByKeyword = async(userId: number | null, keyword: searchDTO, of
     LEFT JOIN (SELECT post_id, COUNT(id) as count_likes FROM post_likes WHERE is_liked = 1 GROUP BY post_id) pl ON p.id = pl.post_id 
     WHERE category_id REGEXP ?
     ORDER BY p.created_at DESC
-    LIMIT 12 * ?, 12
-  `, [keyword.q, +offset])
+    LIMIT ?, 12
+  `, [keyword.q, +offset * 12])
 }
 
 
@@ -111,8 +111,8 @@ const getPostByCategory = async(userId: number | null, category: string[], offse
     LEFT JOIN (SELECT post_id, COUNT(id) as count_likes FROM post_likes WHERE is_liked = 1 GROUP BY post_id) pl ON p.id = pl.post_id 
     WHERE ${searchQuery}
     ORDER BY p.created_at DESC
-    LIMIT 12 * ?, 12
-  `,[+offset])  
+    LIMIT ?, 12
+  `,[+offset * 12])  
 }
 
 

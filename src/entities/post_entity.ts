@@ -33,7 +33,7 @@ export class Posts {
   })
   updated_at!: Date;
 
-  @ManyToOne(() => Users, (user) => user.posts )
+  @ManyToOne(() => Users, (user) => user.posts, {onDelete: 'CASCADE'} )
   @JoinColumn({ name: "user_id", referencedColumnName: 'id' })
   user!: Users;
 
@@ -41,7 +41,7 @@ export class Posts {
   // @JoinColumn({ name: "category_id", referencedColumnName: 'id' })
   // category!: Categories;
 
-  @OneToMany(() => Comments, (comment) => comment.post )
+  @OneToMany(() => Comments, (comment) => comment.post, {cascade: true} )
   comments!: Comments[];
 
   @OneToMany(() => Post_likes, (post_like) => post_like.post, {cascade: true} )

@@ -143,12 +143,21 @@ const getMyPosts = async (userId: number) => {
 
 
 const getMyBookmarks = async (userId: number) => {
-  return await userDao.getMyBookmarks(userId)
+  const posts = await userDao.getMyBookmarks(userId)
+  posts.map((post: { category: string; count_comments: number | null; count_likes: number | null; is_liked: number | null | undefined; is_marked: number | null | undefined; }) => {
+    post.category = JSON.parse(post.category)
+    if(post.count_comments !== null) post.count_comments = +post.count_comments
+    if(post.count_likes !== null) post.count_likes = +post.count_likes
+    if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked
+    if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
+  })
+
+  return posts;
 }
 
 
-const updateWithdrowUser = async (userId: number) => {
-  return await userDao.updateWithdrowUser(userId)
+const withdrowUser = async (userId: number) => {
+  return await userDao.withdrowUser(userId)
 }
 
 
@@ -162,5 +171,5 @@ export default {
   getMyPosts,
   getMyBookmarks,
   updateUserName,
-  updateWithdrowUser
+  withdrowUser
 }

@@ -82,10 +82,10 @@ const getMyBookmarks = asyncWrap (async (req: Request, res: Response) => {
 
 // 비식별화된 유저에 대해 로그인 등의 접근을 어떻게 막을건가 > 별도 테이블에 구성? 아니면 로그인 시 체크, 유령회원일 경우 사용불가 account로 alert?
 // 일정 시간 지나면 자동으로 삭제? 그렇다면 onDelele 옵션을 조건따라 적용해야... 직접 deletePost API로 요청들어온 경우에만 onDelete 되도록...
-const updateWithdrowUser = asyncWrap (async (req: Request, res: Response) => {
+const withdrowUser = asyncWrap (async (req: Request, res: Response) => {
   const userId: number = req.body.foundUser;
 
-  await userService.updateWithdrowUser(userId)
+  await userService.withdrowUser(userId)
   res.status(200).json({ messge: "Withdrow_Success" })
 })
 
@@ -101,5 +101,5 @@ export default {
   getMyPosts,
   getMyBookmarks,
   updateUserName,
-  updateWithdrowUser
+  withdrowUser
 }
