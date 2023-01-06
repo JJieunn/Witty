@@ -77,12 +77,11 @@ const getPostById = async (userId: number | null, postId: number) => {
 const updatePost = async (postId: number, postData: UpdatePostDTO) => {
 
   if(postData.images !== undefined) {
+    await postDao.deletePostImages(postId)
     postData.images.map( async (image) => {
       await postDao.updatePostImages(postId, image)
     })
   }
-
-// 수정된 이미지 업로드 추가
 
   return await postDao.updatePost(postId, JSON.stringify(postData.category), postData);
 }

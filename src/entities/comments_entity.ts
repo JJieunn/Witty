@@ -33,11 +33,11 @@ export class Comments {
   @OneToMany(() => Comment_likes, (comment_like) => comment_like.comment, {cascade: true})
   comment_likes!: Comment_likes[];
 
-  @ManyToOne(() => Users, (user) => user.comments )
+  @ManyToOne(() => Users, (user) => user.comments, {onDelete: 'CASCADE'} )
   @JoinColumn({ name: "user_id", referencedColumnName: 'id' })
   user!: Users;
 
-  @ManyToOne(() => Posts, (post) => post.comments )
+  @ManyToOne(() => Posts, (post) => post.comments, {onDelete: 'CASCADE'} )
   @JoinColumn({ name: "post_id", referencedColumnName: 'id' })
   post!: Posts;
 }

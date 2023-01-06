@@ -59,7 +59,7 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any): Prom
     LEFT JOIN (SELECT post_id, COUNT(id) as count_comments FROM comments GROUP BY post_id) c ON p.id = c.post_id
     LEFT JOIN (SELECT post_id, COUNT(id) as count_likes FROM post_likes WHERE is_liked = 1 GROUP BY post_id) pl ON p.id = pl.post_id 
     ORDER BY p.created_at DESC
-    LIMIT ?, ?`, [+offset, +limit])
+    LIMIT ?, 12`, [+offset * 12])
 }
 
 
@@ -130,14 +130,24 @@ const updatePost = async(postId: number, category: string | undefined, postData:
 }
 
 
+const deletePostImages = async(postId: number): Promise<void> => {
+  await myDataSource.createQueryBuilder()
+  .delete()
+  .from(Post_images)
+  .where("post_id = :postId", { postId })
+  .execute()
+}
+
+
 const updatePostImages = async(postId: number, postImage: string): Promise<void> => {
   await myDataSource.createQueryBuilder()
-    .update(Post_images)
-    .set({
-      image_url: postImage
-    })
-    .where("id = :postId", {postId})
-    .execute()
+  .insert()
+  .into(Post_images)
+  .values({
+    post_id: postId,
+    image_url: postImage
+  })
+  .execute()
 }
 
 
@@ -159,6 +169,7 @@ export default {
   getPostById,
   getCommentsByPost,
   updatePost,
+  deletePostImages,
   updatePostImages,
   deletePost
 }

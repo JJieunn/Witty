@@ -35,10 +35,10 @@ export class Users {
   })
   updated_at!: Date;
 
-  @OneToMany(() => Posts, (post) => post.user)
+  @OneToMany(() => Posts, (post) => post.user, {cascade: true})
   posts!: Posts[];
 
-  @OneToMany(() => Comments, (comment) => comment.user)
+  @OneToMany(() => Comments, (comment) => comment.user, {cascade: true})
   comments!: Comments[];
 
   @OneToMany(() => Comment_likes, (comment_like) => comment_like.user, {cascade: true})

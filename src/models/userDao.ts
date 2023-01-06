@@ -128,14 +128,10 @@ const getMyBookmarks = async (userId: number) => {
 }
 
 
-const updateWithdrowUser = async (userId: number) => {
+const withdrowUser = async (userId: number) => {
   return await myDataSource.createQueryBuilder()
-    .update(Users)
-    .set({
-      account: "",
-      email: "",
-      nickname: "유령회원"
-    })
+    .delete()
+    .from(Users)
     .where("id = :userId", { userId })
     .execute()
 }
@@ -154,5 +150,5 @@ export default {
   getMyPosts,
   getMyBookmarks,
   updateUserName,
-  updateWithdrowUser
+  withdrowUser
 }
