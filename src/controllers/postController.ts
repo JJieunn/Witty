@@ -31,6 +31,14 @@ const getPostById = asyncWrap (async (req: Request, res: Response) => {
 })
 
 
+const getDatasBeforeUpdatePost = asyncWrap (async (req: Request, res: Response) => {
+  const postId = +req.params.post_id;
+
+  const post = await postService.getDatasBeforeUpdatePost(postId)
+  res.status(200).json(post)
+})
+
+
 const updatePost = asyncWrap (async (req: Request, res: Response) => {
   const postId = +req.params.post_id;
   const postData: UpdatePostDTO = req.body;
@@ -73,6 +81,7 @@ export default {
   createPost,
   getAllPosts,
   getPostById,
+  getDatasBeforeUpdatePost,
   updatePost,
   deletePost,
   updatePostLikeByUser,

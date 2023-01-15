@@ -1,5 +1,6 @@
 import { DuplicateError } from "../common/createError"
 import { myDataSource } from "../configs/typeorm_config"
+import { returnPostDTO } from "../dto/postDto"
 import { CreateUserDTO, UpdateUserDTO } from "../dto/userDto"
 import { Posts } from "../entities/post_entity"
 import { Users } from "../entities/user_entity"
@@ -90,11 +91,24 @@ const updateUserName = async (updateData: UpdateUserDTO) => {
 }
 
 
-const getMyPosts = async (userId: number) => {
-  return await myDataSource.getRepository(Posts)
+const getMyPosts = async (userId: number): Promise<returnPostDTO[]> => {
+  return await myDataSource.query(`
+  SELECT 
+      p.id, u.nickname, p.user_id, p.category_id as category,
+      p.content, p.created_at, c.count_comments, pl.count_likes,
+      pi.images
+    FROM posts p
+    JOIN users u ON p.user_id = u.id
+    LEFT JOIN (SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id) pi ON p.id = pi.post_id
+    LEFT JOIN (SELECT post_id, COUNT(id) as count_comments FROM comments GROUP BY post_id) c ON p.id = c.post_id
+    LEFT JOIN (SELECT post_id, COUNT(id) as count_likes FROM post_likes WHERE is_liked = 1 GROUP BY post_id) pl ON p.id = pl.post_id 
+    WHERE p.user_id = ?
+    ORDER BY p.created_at DESC
+  `, [userId])
+  /* return await myDataSource.getRepository(Posts)
     .createQueryBuilder("posts")
     .select(["posts.id AS id", "posts.content AS content", "posts.created_at AS created_at",
-        "post_images.post_id AS images",
+        "post_images.image_url AS images",
         "posts.category_id AS category"])
     .addSelect("COUNT(comments.id) AS count_comments")
     .addSelect("COUNT(post_likes.id) AS count_likes")
@@ -105,7 +119,12 @@ const getMyPosts = async (userId: number) => {
     .groupBy("posts.id")
     .orderBy("posts.created_at", "DESC")
     .getRawMany()
-}
+    */
+} 
+/* 
+  LEFT JOIN 
+    ( SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id ) pi ON p.id = pi.post_id
+*/
 
 
 const getMyBookmarks = async (userId: number) => {

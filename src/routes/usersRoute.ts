@@ -14,6 +14,7 @@ router.patch('/my/name', validateToken, userController.updateUserName)
 router.patch('/my', validateToken, userController.withdrowUser) // 임시
 router.get('/my/posts', validateToken, userController.getMyPosts)
 router.get('/my/bookmarks', validateToken, userController.getMyBookmarks)
+router.patch('/my/bookmarks/:post_id', validateToken, userController.updateMyBookmarks)
 
 
 export default router

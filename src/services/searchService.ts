@@ -31,8 +31,8 @@ const getPostByKeyword = async(userId: number | null, keyword: searchDTO, offset
     }
 
     post.category = JSON.parse(post.category)
-    if(post.count_comments !== null) post.count_comments = +post.count_comments
-    if(post.count_likes !== null) post.count_likes = +post.count_likes
+    if(post.count_comments !== null && post.count_comments !== undefined) post.count_comments = +post.count_comments
+    if(post.count_likes !== null && post.count_likes !== undefined) post.count_likes = +post.count_likes
   })
 
   return posts;
@@ -57,8 +57,8 @@ const getCategoryByKeyword = async(userId: number | null, keyword: searchDTO, of
     }
 
     post.category = JSON.parse(post.category)
-    if(post.count_comments !== null) post.count_comments = +post.count_comments
-    if(post.count_likes !== null) post.count_likes = +post.count_likes
+    if(post.count_comments !== null && post.count_comments !== undefined) post.count_comments = +post.count_comments
+    if(post.count_likes !== null && post.count_likes !== undefined) post.count_likes = +post.count_likes
   })
 
   return posts;
@@ -86,8 +86,8 @@ const getPostByCategory = async(userId: number | null, keyword: searchDTO, offse
     }
 
     post.category = JSON.parse(post.category)
-    if(post.count_comments !== null) post.count_comments = +post.count_comments
-    if(post.count_likes !== null) post.count_likes = +post.count_likes
+    if(post.count_comments !== null && post.count_comments !== undefined) post.count_comments = +post.count_comments
+    if(post.count_likes !== null && post.count_likes !== undefined) post.count_likes = +post.count_likes
   })
 
   return posts;

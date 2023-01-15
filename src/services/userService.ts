@@ -5,6 +5,7 @@ import userDao from "../models/userDao"
 import { CreateUserDTO, UpdateUserDTO } from "../dto/userDto"
 import { BadRequestExceptions, keyError, PwMismatchError } from "../common/createError"
 import { SECRET_KEY, JavaScript_Key, REDIRECT_URI } from "../configs/keyConfig"
+import likeAndBookmarkDao from "../models/likeAndBookmarkDao";
 
 
 const userAvailableCheck = async (userData: object) => {
@@ -132,6 +133,20 @@ const getMyPosts = async (userId: number) => {
   const posts = await userDao.getMyPosts(userId)
   posts.map((post) => {
     post.category = JSON.parse(post.category)
+    if(post.count_comments !== null && post.count_comments !== undefined) post.count_comments = +post.count_comments
+    if(post.count_likes !== null && post.count_likes !== undefined) post.count_likes = +post.count_likes
+    if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked
+    if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
+  })
+
+  return posts;
+}
+
+
+const getMyBookmarks = async (userId: number) => {
+  const posts = await userDao.getMyBookmarks(userId)
+  posts.map((post: { category: string; count_comments: number | null; count_likes: number | null; is_liked: number | null | undefined; is_marked: number | null | undefined; }) => {
+    post.category = JSON.parse(post.category)
     if(post.count_comments !== null) post.count_comments = +post.count_comments
     if(post.count_likes !== null) post.count_likes = +post.count_likes
     if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked
@@ -142,7 +157,8 @@ const getMyPosts = async (userId: number) => {
 }
 
 
-const getMyBookmarks = async (userId: number) => {
+const updateMyBookmarks = async (userId: number, postId: number) => {
+  await likeAndBookmarkDao.updatePostBookmark(userId, postId);
   const posts = await userDao.getMyBookmarks(userId)
   posts.map((post: { category: string; count_comments: number | null; count_likes: number | null; is_liked: number | null | undefined; is_marked: number | null | undefined; }) => {
     post.category = JSON.parse(post.category)
@@ -170,6 +186,7 @@ export default {
   getMyPage,
   getMyPosts,
   getMyBookmarks,
+  updateMyBookmarks,
   updateUserName,
   withdrowUser
 }
