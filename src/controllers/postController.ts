@@ -15,9 +15,9 @@ const createPost = asyncWrap (async (req: Request, res: Response) => {
 
 const getAllPosts = asyncWrap (async (req: Request, res: Response) => {
   const userId: number | null = req.body.foundUser;
-  const { offset, limit } = req.query;
+  const offset = req.query.offset;
 
-  const posts = await postService.getAllPosts(userId, offset, limit);
+  const posts = await postService.getAllPosts(userId, offset);
   res.status(200).json(posts)
 })
 
@@ -27,6 +27,14 @@ const getPostById = asyncWrap (async (req: Request, res: Response) => {
   const postId = +req.params.post_id;
 
   const post = await postService.getPostById(userId, postId);
+  res.status(200).json(post)
+})
+
+
+const getDatasBeforeUpdatePost = asyncWrap (async (req: Request, res: Response) => {
+  const postId = +req.params.post_id;
+
+  const post = await postService.getDatasBeforeUpdatePost(postId)
   res.status(200).json(post)
 })
 
@@ -73,6 +81,7 @@ export default {
   createPost,
   getAllPosts,
   getPostById,
+  getDatasBeforeUpdatePost,
   updatePost,
   deletePost,
   updatePostLikeByUser,

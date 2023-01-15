@@ -16,13 +16,13 @@ export class UpdatePostDTO {
 
 export interface returnPostDTO {
   id: number,
-  nickname: string,
-  user_id: number,
+  nickname?: string,
+  user_id?: number,
   category: string,
   content: string,
-  created_at: Date,
-  count_comments: number | string | null,
-  count_likes: number | string | null,
+  created_at?: Date,
+  count_comments?: number | string | null,
+  count_likes?: number | string | null,
   is_liked?: number | string | null,
   is_marked?: number | string | null,
   is_owner?: boolean
@@ -30,6 +30,7 @@ export interface returnPostDTO {
 
 export interface postDTO {
   post: returnPostDTO,
+  file?: string[],
   comments?: comments[]
 }
 

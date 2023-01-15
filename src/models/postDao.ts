@@ -35,7 +35,7 @@ const createPostImages = async (userId: number, postImage: string): Promise<void
 }
 
 
-const getAllPosts = async (userId: number | null, offset: any, limit: any): Promise<returnPostDTO[]> => {
+const getAllPosts = async (userId: number | null, offset: any): Promise<returnPostDTO[]> => {
   let likeAndBookmark = ""
   let leftJoinWithLikes = ""
   let leftJoinWithBookmarks = ""
@@ -130,6 +130,18 @@ const updatePost = async(postId: number, category: string | undefined, postData:
 }
 
 
+const getDatasByPostId = async(postId: number): Promise<returnPostDTO[]> => {
+  return await myDataSource.query(`
+  SELECT 
+    p.id, p.category_id as category, p.content, pi.images as file
+  FROM posts p
+  LEFT JOIN 
+    ( SELECT post_id, JSON_ARRAYAGG(image_url) as images FROM post_images GROUP BY post_id ) pi ON p.id = pi.post_id
+  WHERE p.id = ?
+  `, [postId])
+}
+
+
 const deletePostImages = async(postId: number): Promise<void> => {
   await myDataSource.createQueryBuilder()
   .delete()
@@ -169,6 +181,7 @@ export default {
   getPostById,
   getCommentsByPost,
   updatePost,
+  getDatasByPostId,
   deletePostImages,
   updatePostImages,
   deletePost

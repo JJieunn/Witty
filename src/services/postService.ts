@@ -16,8 +16,8 @@ const createPost = async (postData: CreatePostDTO) => {
 }
 
 
-const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
-  const posts = await postDao.getAllPosts(userId, offset, limit);
+const getAllPosts = async (userId: number | null, offset: any) => {
+  const posts = await postDao.getAllPosts(userId, offset);
   
   posts.map((post) => {
     if(userId !== null) {
@@ -29,8 +29,8 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
     }
 
     post.category = JSON.parse(post.category)
-    if(post.count_comments !== null) post.count_comments = +post.count_comments
-    if(post.count_likes !== null) post.count_likes = +post.count_likes
+    if(post.count_comments !== null && post.count_comments !== undefined) post.count_comments = +post.count_comments
+    if(post.count_likes !== null && post.count_likes !== undefined) post.count_likes = +post.count_likes
   })
 
   return posts;
@@ -50,8 +50,8 @@ const getPostById = async (userId: number | null, postId: number) => {
   }
   
   post.category = JSON.parse(post.category)
-  if(post.count_comments !== null) post.count_comments = +post.count_comments
-  if(post.count_likes !== null) post.count_likes = +post.count_likes
+  if(post.count_comments !== null && post.count_comments !== undefined) post.count_comments = +post.count_comments
+  if(post.count_likes !== null && post.count_likes !== undefined) post.count_likes = +post.count_likes
   if(post.is_liked !== null && post.is_liked !== undefined) post.is_liked = +post.is_liked
   if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
 
@@ -70,6 +70,16 @@ const getPostById = async (userId: number | null, postId: number) => {
   else if(commentList === undefined) result.comments = [];
 
   result.post = post;
+  return result;
+}
+
+
+const getDatasBeforeUpdatePost = async (postId: number) => {
+  const [post] = await postDao.getDatasByPostId(postId)
+  let result: postDTO = {
+    post
+  }
+
   return result;
 }
 
@@ -132,6 +142,7 @@ export default {
   createPost,
   getAllPosts,
   getPostById,
+  getDatasBeforeUpdatePost,
   updatePost,
   deletePost,
   updatePostLikeByUser,
