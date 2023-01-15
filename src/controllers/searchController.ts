@@ -41,8 +41,17 @@ const getCategoryByKeyword = asyncWrap (async (req: Request, res: Response) => {
 })
 
 
+const getPostsByLiked = asyncWrap (async (req: Request, res: Response) => {
+  const userId: number | null = req.body.foundUser;
+
+  const result = await searchService.getPostsByLiked(userId);
+  res.status(200).json(result)
+})
+
+
 export default {
   getPostByKeyword,
   getUserByKeyword,
-  getCategoryByKeyword
+  getCategoryByKeyword,
+  getPostsByLiked
 }

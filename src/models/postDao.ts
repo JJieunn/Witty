@@ -35,7 +35,7 @@ const createPostImages = async (userId: number, postImage: string): Promise<void
 }
 
 
-const getAllPosts = async (userId: number | null, offset: any, limit: any): Promise<returnPostDTO[]> => {
+const getAllPosts = async (userId: number | null, offset: any): Promise<returnPostDTO[]> => {
   let likeAndBookmark = ""
   let leftJoinWithLikes = ""
   let leftJoinWithBookmarks = ""

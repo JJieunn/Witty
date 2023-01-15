@@ -16,8 +16,8 @@ const createPost = async (postData: CreatePostDTO) => {
 }
 
 
-const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
-  const posts = await postDao.getAllPosts(userId, offset, limit);
+const getAllPosts = async (userId: number | null, offset: any) => {
+  const posts = await postDao.getAllPosts(userId, offset);
   
   posts.map((post) => {
     if(userId !== null) {
@@ -28,7 +28,7 @@ const getAllPosts = async (userId: number | null, offset: any, limit: any) => {
       if(post.is_marked !== null && post.is_marked !== undefined) post.is_marked = +post.is_marked
     }
 
-    // post.category = JSON.parse(post.category)
+    post.category = JSON.parse(post.category)
     if(post.count_comments !== null && post.count_comments !== undefined) post.count_comments = +post.count_comments
     if(post.count_likes !== null && post.count_likes !== undefined) post.count_likes = +post.count_likes
   })

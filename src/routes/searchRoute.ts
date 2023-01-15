@@ -7,5 +7,6 @@ const router = express.Router()
 router.get("", validateTokenBycondition, searchController.getPostByKeyword)
 router.get("/user", searchController.getUserByKeyword)
 router.get("/category", validateTokenBycondition, searchController.getCategoryByKeyword)
+router.get("/like", validateTokenBycondition, searchController.getPostsByLiked)
 
 export default router
