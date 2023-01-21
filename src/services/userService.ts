@@ -158,8 +158,7 @@ const getMyBookmarks = async (userId: number) => {
 
 
 const updateMyBookmarks = async (userId: number, postId: number) => {
-  await likeAndBookmarkDao.updatePostBookmark(userId, postId);
-  const posts = await userDao.getMyBookmarks(userId)
+  const posts = await userDao.updateMyBookmarks(userId, postId);
   posts.map((post: { category: string; count_comments: number | null; count_likes: number | null; is_liked: number | null | undefined; is_marked: number | null | undefined; }) => {
     post.category = JSON.parse(post.category)
     if(post.count_comments !== null) post.count_comments = +post.count_comments

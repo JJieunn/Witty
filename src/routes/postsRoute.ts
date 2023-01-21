@@ -15,4 +15,5 @@ router.patch("/:post_id/like", validateToken, postController.updatePostLikeByUse
 router.patch("/:post_id/bookmark", validateToken, postController.updatePostBookmark)
 router.post("/:post_id/comment", validateToken, commentController.createComment)
 router.delete("/:post_id/:comment_id", validateToken, commentController.deleteComment)
+
 export default router

@@ -16,7 +16,7 @@ const myDataSource = new DataSource ({
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
   entities: [Categories ,Users, Posts, Post_likes, Post_images, Comments, Post_bookmarks, Comment_likes],
-  synchronize: true,
+  synchronize: false,
   logging: true
 });
 
