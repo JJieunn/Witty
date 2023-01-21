@@ -147,6 +147,32 @@ const getMyBookmarks = async (userId: number) => {
 }
 
 
+const updateMyBookmarks = async (userId: number, postId: number) => {
+  await myDataSource.query(`
+  UPDATE post_bookmarks
+  SET is_marked = 0
+  WHERE user_id = ? AND post_id = ?
+`, [userId, postId])
+
+  return await myDataSource.query(`
+  SELECT DISTINCT 
+    bookmarks.id, bookmarks.post_id, p.content, p.category, 
+    p.count_likes, p.count_comments, p.images
+  FROM post_bookmarks bookmarks
+  JOIN
+    (	SELECT 
+        posts.id, posts.content, posts.category_id as category,
+        post_images.post_id as images, COUNT(post_likes.id) as count_likes, COUNT(comments.id) as count_comments
+      FROM posts
+      LEFT JOIN post_images ON posts.id = post_images.post_id
+      LEFT JOIN post_likes ON posts.id = post_likes.post_id
+      LEFT JOIN comments ON posts.id = comments.post_id
+      GROUP BY posts.id
+    ) p ON bookmarks.post_id = p.id
+  WHERE is_marked = 1 AND bookmarks.user_id = ?`, [userId])
+}
+
+
 const withdrowUser = async (userId: number) => {
   return await myDataSource.createQueryBuilder()
     .delete()
@@ -168,6 +194,7 @@ export default {
   getMyPage,
   getMyPosts,
   getMyBookmarks,
+  updateMyBookmarks,
   updateUserName,
   withdrowUser
 }
