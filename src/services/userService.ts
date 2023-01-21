@@ -5,7 +5,6 @@ import userDao from "../models/userDao"
 import { CreateUserDTO, UpdateUserDTO } from "../dto/userDto"
 import { BadRequestExceptions, keyError, PwMismatchError } from "../common/createError"
 import { SECRET_KEY, JavaScript_Key, REDIRECT_URI } from "../configs/keyConfig"
-import likeAndBookmarkDao from "../models/likeAndBookmarkDao";
 
 
 const userAvailableCheck = async (userData: object) => {
@@ -33,7 +32,10 @@ const signInUser = async (userData: CreateUserDTO) => {
   let token = ""
 
   const userIdPw = await userDao.getUserByAccount(userData);
-  console.log(userIdPw)
+  
+  if(userIdPw.length === 0) { throw new BadRequestExceptions("User_Not_Existed") }
+
+  else {
   const isPasswordCorrected = bcrypt.compareSync(userData.password, userIdPw[0].password);
 
   if (!isPasswordCorrected) { throw new PwMismatchError("Password_Mismatch") }
@@ -45,7 +47,7 @@ const signInUser = async (userData: CreateUserDTO) => {
   }
 
   return user;
-}
+}}
 
 
 // kakao
