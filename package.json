@@ -2,7 +2,7 @@
   "name": "witty",
   "version": "1.0.0",
   "description": "SNS를 모티브로 하는 Toy Project",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon dist/server.js",
