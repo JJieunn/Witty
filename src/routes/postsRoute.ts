@@ -1,13 +1,13 @@
 import express from "express"
 import postController from "../controllers/postController"
 import commentController from "../controllers/commentController"
-import { validateToken, validateTokenBycondition } from "../middlewares/authorization"
+import { validateToken } from "../middlewares/authorization"
 
 const router = express.Router()
 
 router.post("", validateToken, postController.createPost)
-router.get("", validateTokenBycondition, postController.getAllPosts)
-router.get("/:post_id", validateTokenBycondition, postController.getPostById)
+router.get("", validateToken, postController.getAllPosts)
+router.get("/:post_id", validateToken, postController.getPostById)
 router.get("/update/:post_id", validateToken, postController.getDatasBeforeUpdatePost)
 router.patch("/update/:post_id", validateToken, postController.updatePost)
 router.delete("/:post_id", validateToken, postController.deletePost)
